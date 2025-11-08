@@ -32,3 +32,4 @@ com/eventos/controller/HealthController.class
 com/eventos/service/OrdenCompraService.class
 com/eventos/config/CorsConfig.class
 com/eventos/model/Usuario$Rol.class
+com/eventos/controller/MenuController.class
