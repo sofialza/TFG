@@ -19,6 +19,7 @@
 /home/runner/workspace/backend/src/main/java/com/eventos/repository/MenuRepository.java
 /home/runner/workspace/backend/src/main/java/com/eventos/service/InsumoService.java
 /home/runner/workspace/backend/src/main/java/com/eventos/service/EventoService.java
+/home/runner/workspace/backend/src/main/java/com/eventos/controller/MenuController.java
 /home/runner/workspace/backend/src/main/java/com/eventos/repository/OrdenCompraRepository.java
 /home/runner/workspace/backend/src/main/java/com/eventos/repository/ProveedorRepository.java
 /home/runner/workspace/backend/src/main/java/com/eventos/model/OrdenCompra.java
