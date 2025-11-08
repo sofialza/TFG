@@ -1,0 +1,6 @@
+com/eventos/config/SecurityConfig.class
+com/eventos/config/CorsConfig.class
+com/eventos/config/CorsConfig$1.class
+com/eventos/EventosApplication.class
+com/eventos/App.class
+com/eventos/controller/HealthController.class
