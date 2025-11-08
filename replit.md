@@ -52,15 +52,45 @@ Sistema web full-stack para gestionar eventos, controlar inventario de insumos, 
 3. **API REST Endpoints**:
    - `/api/eventos` - CRUD de eventos
    - `/api/eventos/{id}/proyeccion-consumo` - Calcular proyección
+   - `/api/menus` - CRUD de menús
    - `/api/insumos` - CRUD de insumos
    - `/api/insumos/alertas-stock-bajo` - Obtener alertas
    - `/api/ordenes-compra` - CRUD de órdenes
    - `/api/ordenes-compra/pendientes` - Compras pendientes
 
-### Frontend Pendiente
-- Interfaces de usuario según diseño DrawIO
-- Dashboards por rol de usuario
-- Formularios de gestión
+### Frontend React Completo ✅
+1. **Dashboard Principal**:
+   - Estadísticas en tiempo real (eventos, insumos, alertas)
+   - Acceso rápido a todas las secciones del sistema
+   
+2. **Gestión de Eventos**:
+   - Listar todos los eventos con detalles (fecha, asistentes, menú)
+   - Crear nuevos eventos con selección de menú
+   - Eliminar eventos
+   
+3. **Gestión de Menús**:
+   - Listar todos los menús disponibles
+   - Crear nuevos menús (primer plato, segundo plato, torta)
+   - Eliminar menús
+   
+4. **Gestión de Insumos**:
+   - Listar insumos con indicadores de stock
+   - Crear nuevos insumos (nombre, stock actual, unidad de medida)
+   - Eliminar insumos
+   - Sistema de alertas visuales para stock bajo
+   
+5. **Gestión de Órdenes de Compra**:
+   - Listar órdenes con estado (pendiente/aprobada/rechazada)
+   - Crear nuevas órdenes
+   - Eliminar órdenes
+   
+6. **Navegación**:
+   - Barra de navegación con acceso a todas las secciones
+   - Interfaz limpia sin marcas de Replit
+
+### Características Opcionales (Futuro)
+- ⏳ Vista de login con autenticación JWT
+- ⏳ Dashboards diferenciados por rol (Administrador, Encargada de Cocina, Organizador de Eventos)
 
 ## Roles de Usuario
 1. **Administrador**: Decisiones estratégicas, contratación proveedores
@@ -85,17 +115,21 @@ cd backend && mvn spring-boot:run
 cd frontend && npm run dev
 ```
 
-## Estado Actual
+## Estado Actual (MVP Completo)
 - ✅ Backend Java completamente funcional
 - ✅ Base de datos PostgreSQL configurada
-- ✅ API REST con documentación Swagger
-- ⏳ Frontend React en progreso
+- ✅ API REST completa con 8 controllers
+- ✅ Frontend React con todas las funcionalidades principales
+- ✅ Sistema de alertas de stock bajo funcionando
+- ✅ Proyección de consumo automática operativa
+- ✅ CRUD completo para eventos, menús, insumos y órdenes
+- ✅ Ambos workflows (frontend/backend) corriendo sin errores
 
-## Próximos Pasos
-1. Completar vistas React según diseño DrawIO
-2. Implementar autenticación JWT completa
-3. Integrar frontend con backend
-4. Testing y deployment
+## Próximos Pasos (Opcional)
+1. Implementar autenticación JWT con vista de login
+2. Crear dashboards diferenciados por rol de usuario
+3. Testing exhaustivo y optimización
+4. Deployment a producción
 
 ## Notas Técnicas
 - El proyecto NO usa MySQL porque en Replit, PostgreSQL está integrado nativamente
