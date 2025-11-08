@@ -88,9 +88,17 @@ Sistema web full-stack para gestionar eventos, controlar inventario de insumos, 
    - Barra de navegación con acceso a todas las secciones
    - Interfaz limpia sin marcas de Replit
 
-### Características Opcionales (Futuro)
-- ⏳ Vista de login con autenticación JWT
-- ⏳ Dashboards diferenciados por rol (Administrador, Encargada de Cocina, Organizador de Eventos)
+7. **Sistema de Autenticación** ✅:
+   - Vista de login con selección de rol
+   - AuthContext para gestión de sesiones
+   - Protección de rutas (solo usuarios autenticados)
+   - Sesión persistente en localStorage
+   - Logout desde navbar
+
+8. **Dashboards por Rol** ✅:
+   - Dashboard Administrador: Estadísticas generales y gestión completa
+   - Dashboard Encargada de Cocina: Alertas de stock y control de insumos
+   - Dashboard Organizador de Eventos: Calendario de eventos y menús
 
 ## Roles de Usuario
 1. **Administrador**: Decisiones estratégicas, contratación proveedores
@@ -115,7 +123,7 @@ cd backend && mvn spring-boot:run
 cd frontend && npm run dev
 ```
 
-## Estado Actual (MVP Completo)
+## Estado Actual - Sistema Completo ✅
 - ✅ Backend Java completamente funcional
 - ✅ Base de datos PostgreSQL configurada
 - ✅ API REST completa con 8 controllers
@@ -123,13 +131,16 @@ cd frontend && npm run dev
 - ✅ Sistema de alertas de stock bajo funcionando
 - ✅ Proyección de consumo automática operativa
 - ✅ CRUD completo para eventos, menús, insumos y órdenes
+- ✅ Sistema de autenticación con login y protección de rutas
+- ✅ 3 dashboards diferenciados por rol (Administrador, Encargada de Cocina, Organizador)
+- ✅ README completo en español argentino
 - ✅ Ambos workflows (frontend/backend) corriendo sin errores
 
 ## Próximos Pasos (Opcional)
-1. Implementar autenticación JWT con vista de login
-2. Crear dashboards diferenciados por rol de usuario
-3. Testing exhaustivo y optimización
-4. Deployment a producción
+1. Implementar autenticación JWT con backend (actualmente es solo frontend)
+2. Testing exhaustivo y optimización
+3. Deployment a producción
+4. Reportes en PDF/Excel
 
 ## Notas Técnicas
 - El proyecto NO usa MySQL porque en Replit, PostgreSQL está integrado nativamente
