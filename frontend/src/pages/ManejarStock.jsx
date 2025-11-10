@@ -10,10 +10,14 @@ const ManejarStock = () => {
   const puedeActualizarStock = () => {
     return user && (user.role === 'ADMINISTRADOR' || user.role === 'ENCARGADA_COCINA');
   };
+
   const [tabActiva, setTabActiva] = useState('actual');
-  const [insumos, setInsumos] = useState([]);
   const [menus, setMenus] = useState([]);
+  const [menuSeleccionado, setMenuSeleccionado] = useState('');
+  const [insumosMenu, setInsumosMenu] = useState([]);
+  const [insumosEditados, setInsumosEditados] = useState({});
   
+  const [eventos, setEventos] = useState([]);
   const [eventoSeleccionado, setEventoSeleccionado] = useState('');
   const [proyeccion, setProyeccion] = useState([]);
 
@@ -21,28 +25,102 @@ const ManejarStock = () => {
     cargarDatos();
   }, []);
 
+  useEffect(() => {
+    if (menuSeleccionado) {
+      cargarInsumosMenu();
+    }
+  }, [menuSeleccionado]);
+
   const cargarDatos = async () => {
     try {
-      const [insumosRes, menusRes] = await Promise.all([
-        api.get('/insumos'),
-        api.get('/menus')
+      const [menusRes, eventosRes] = await Promise.all([
+        api.get('/menus'),
+        api.get('/eventos')
       ]);
       
-      setInsumos(insumosRes.data);
       setMenus(menusRes.data);
+      setEventos(eventosRes.data);
+      
+      if (menusRes.data.length > 0) {
+        setMenuSeleccionado(menusRes.data[0].idMenu);
+      }
     } catch (error) {
       console.error('Error cargando datos:', error);
     }
   };
 
-  const handleActualizarStock = async () => {
+  const cargarInsumosMenu = async () => {
     try {
+      const menuResponse = await api.get(`/menus/${menuSeleccionado}`);
+      const menu = menuResponse.data;
+      
+      if (menu.menuInsumos && menu.menuInsumos.length > 0) {
+        const insumosPromises = menu.menuInsumos.map(async (mi) => {
+          const insumoRes = await api.get(`/insumos/${mi.idInsumo}`);
+          return {
+            ...insumoRes.data,
+            cantidadPorPersona: mi.cantidadPorPersona,
+            nombreMenu: menu.nombre
+          };
+        });
+        
+        const insumosData = await Promise.all(insumosPromises);
+        setInsumosMenu(insumosData);
+        
+        // Inicializar valores editables
+        const editados = {};
+        insumosData.forEach(insumo => {
+          editados[insumo.idInsumo] = {
+            cantidadActual: insumo.cantidadActual,
+            fechaActualizacion: new Date(insumo.fechaActualizacion).toISOString().split('T')[0]
+          };
+        });
+        setInsumosEditados(editados);
+      } else {
+        setInsumosMenu([]);
+        setInsumosEditados({});
+      }
+    } catch (error) {
+      console.error('Error cargando insumos del menú:', error);
+      setInsumosMenu([]);
+    }
+  };
+
+  const handleCambioInsumo = (idInsumo, campo, valor) => {
+    setInsumosEditados(prev => ({
+      ...prev,
+      [idInsumo]: {
+        ...prev[idInsumo],
+        [campo]: valor
+      }
+    }));
+  };
+
+  const handleActualizarStock = async () => {
+    if (!puedeActualizarStock()) {
+      alert('No tiene permisos para actualizar el stock');
+      return;
+    }
+
+    try {
+      const actualizaciones = Object.entries(insumosEditados).map(async ([idInsumo, datos]) => {
+        await api.put(`/insumos/${idInsumo}`, {
+          cantidadActual: parseFloat(datos.cantidadActual),
+          fechaActualizacion: datos.fechaActualizacion
+        });
+      });
+
+      await Promise.all(actualizaciones);
       alert('Stock actualizado exitosamente');
-      cargarDatos();
+      cargarInsumosMenu();
     } catch (error) {
       console.error('Error actualizando stock:', error);
       alert('Error al actualizar stock');
     }
+  };
+
+  const handleCancelar = () => {
+    cargarInsumosMenu();
   };
 
   const handleSimularPedido = async () => {
@@ -53,7 +131,40 @@ const ManejarStock = () => {
 
     try {
       const response = await api.get(`/eventos/${eventoSeleccionado}/proyeccion-consumo`);
-      setProyeccion(response.data);
+      const proyeccionData = response.data;
+      
+      // Obtener el evento para tener el nombre del menú
+      const eventoRes = await api.get(`/eventos/${eventoSeleccionado}`);
+      const evento = eventoRes.data;
+      const menuRes = await api.get(`/menus/${evento.idMenu}`);
+      const nombreMenu = menuRes.data.nombre;
+      
+      // Enriquecer con proveedores para cada insumo
+      const proyeccionEnriquecida = await Promise.all(
+        proyeccionData.map(async (item) => {
+          try {
+            const insumoRes = await api.get(`/insumos/${item.idInsumo}`);
+            const insumo = insumoRes.data;
+            const proveedor = insumo.provInsumos && insumo.provInsumos.length > 0
+              ? insumo.provInsumos[0].proveedor?.nombre || 'N/A'
+              : 'N/A';
+            
+            return {
+              ...item,
+              nombreMenu: nombreMenu,
+              nombreProveedor: proveedor
+            };
+          } catch (error) {
+            return {
+              ...item,
+              nombreMenu: nombreMenu,
+              nombreProveedor: 'N/A'
+            };
+          }
+        })
+      );
+      
+      setProyeccion(proyeccionEnriquecida);
     } catch (error) {
       console.error('Error simulando pedido:', error);
       alert('Error al simular pedido');
@@ -82,7 +193,7 @@ const ManejarStock = () => {
       item.cantidadPorPersona || 0,
       item.stockActual || 0,
       item.consumoProyectado || 0,
-      item.nombreProveedor || '',
+      item.nombreProveedor || 'N/A',
       item.deficit > 0 ? item.deficit : 0
     ]);
 
@@ -102,6 +213,15 @@ const ManejarStock = () => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  const formatearFecha = (fecha) => {
+    if (!fecha) return '';
+    const date = new Date(fecha);
+    const dia = String(date.getDate()).padStart(2, '0');
+    const mes = String(date.getMonth() + 1).padStart(2, '0');
+    const anio = date.getFullYear();
+    return `${dia}/${mes}/${anio}`;
   };
 
   return (
@@ -191,75 +311,151 @@ const ManejarStock = () => {
       {/* Contenido Stock Actual */}
       {tabActiva === 'actual' && (
         <div>
-          <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '30px' }}>
-            <thead>
-              <tr style={{ background: '#5DADE2', color: '#fff' }}>
-                <th style={{ padding: '12px', border: '1px solid #333', textAlign: 'left' }}>Nombre Insumo</th>
-                <th style={{ padding: '12px', border: '1px solid #333', textAlign: 'center' }}>Stock Actual</th>
-                <th style={{ padding: '12px', border: '1px solid #333', textAlign: 'center' }}>Unidad</th>
-                <th style={{ padding: '12px', border: '1px solid #333', textAlign: 'center' }}>Última Actualización</th>
-              </tr>
-            </thead>
-            <tbody>
-              {insumos.length > 0 ? (
-                insumos.map((insumo) => (
-                  <tr key={insumo.idInsumo}>
-                    <td style={{ padding: '12px', border: '1px solid #ddd' }}>
-                      {insumo.nombre}
-                    </td>
-                    <td style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'center' }}>
-                      {insumo.cantidadActual}
-                    </td>
-                    <td style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'center' }}>
-                      {insumo.unidadMedida}
-                    </td>
-                    <td style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'center' }}>
-                      {new Date(insumo.fechaActualizacion).toLocaleDateString('es-AR')}
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="4" style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
-                    No hay insumos registrados
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
-            <button
-              onClick={() => navigate('/')}
+          {/* Selector de Menú */}
+          <div style={{ marginBottom: '30px', maxWidth: '400px' }}>
+            <label style={{ 
+              fontSize: '16px', 
+              fontWeight: 'bold', 
+              display: 'block', 
+              marginBottom: '10px' 
+            }}>
+              Menú
+            </label>
+            <select
+              value={menuSeleccionado}
+              onChange={(e) => setMenuSeleccionado(e.target.value)}
               style={{
-                background: '#fff',
-                color: '#333',
-                border: '2px solid #ccc',
-                padding: '12px 40px',
-                borderRadius: '5px',
-                fontSize: '16px',
-                cursor: 'pointer'
+                width: '100%',
+                padding: '10px',
+                border: '1px solid #ccc',
+                borderRadius: '4px',
+                fontSize: '14px',
+                background: '#fff'
               }}
             >
-              Volver
-            </button>
-            <button
-              onClick={handleActualizarStock}
-              disabled={!puedeActualizarStock()}
-              title={!puedeActualizarStock() ? 'Acción no disponible para su perfil de usuario' : ''}
-              style={{
-                background: puedeActualizarStock() ? '#5DADE2' : '#ccc',
-                color: '#fff',
-                border: 'none',
-                padding: '12px 40px',
-                borderRadius: '5px',
-                fontSize: '16px',
-                cursor: puedeActualizarStock() ? 'pointer' : 'not-allowed'
-              }}
-            >
-              Actualizar
-            </button>
+              <option value="">Selecciona Menú</option>
+              {menus.map(menu => (
+                <option key={menu.idMenu} value={menu.idMenu}>
+                  {menu.nombre}
+                </option>
+              ))}
+            </select>
           </div>
+
+          {/* Tabla de Insumos */}
+          {insumosMenu.length > 0 ? (
+            <>
+              <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '30px' }}>
+                <thead>
+                  <tr style={{ background: '#5DADE2', color: '#fff' }}>
+                    <th style={{ padding: '12px', border: '1px solid #333' }}>Nombre del Menu</th>
+                    <th style={{ padding: '12px', border: '1px solid #333' }}>Nombre Insumo</th>
+                    <th style={{ padding: '12px', border: '1px solid #333' }}>Cant x Persona</th>
+                    <th style={{ padding: '12px', border: '1px solid #333' }}>Stock Actual</th>
+                    <th style={{ padding: '12px', border: '1px solid #333' }}>Fecha Actualización</th>
+                    <th style={{ padding: '12px', border: '1px solid #333' }}>Nombre Proveedor</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {insumosMenu.map((insumo) => {
+                    const proveedor = insumo.provInsumos && insumo.provInsumos.length > 0 
+                      ? insumo.provInsumos[0].proveedor?.nombre || 'N/A'
+                      : 'N/A';
+                    
+                    return (
+                      <tr key={insumo.idInsumo}>
+                        <td style={{ padding: '12px', border: '1px solid #ddd' }}>
+                          {insumo.nombreMenu}
+                        </td>
+                        <td style={{ padding: '12px', border: '1px solid #ddd' }}>
+                          {insumo.nombre}
+                        </td>
+                        <td style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'center' }}>
+                          {insumo.cantidadPorPersona} {insumo.unidadMedida}
+                        </td>
+                        <td style={{ padding: '12px', border: '1px solid #ddd' }}>
+                          <input
+                            type="number"
+                            step="0.01"
+                            value={insumosEditados[insumo.idInsumo]?.cantidadActual || 0}
+                            onChange={(e) => handleCambioInsumo(insumo.idInsumo, 'cantidadActual', e.target.value)}
+                            disabled={!puedeActualizarStock()}
+                            style={{
+                              width: '100%',
+                              padding: '8px',
+                              border: '1px solid #ccc',
+                              borderRadius: '4px',
+                              fontSize: '14px'
+                            }}
+                          />
+                        </td>
+                        <td style={{ padding: '12px', border: '1px solid #ddd' }}>
+                          <input
+                            type="date"
+                            value={insumosEditados[insumo.idInsumo]?.fechaActualizacion || ''}
+                            onChange={(e) => handleCambioInsumo(insumo.idInsumo, 'fechaActualizacion', e.target.value)}
+                            disabled={!puedeActualizarStock()}
+                            style={{
+                              width: '100%',
+                              padding: '8px',
+                              border: '1px solid #ccc',
+                              borderRadius: '4px',
+                              fontSize: '14px'
+                            }}
+                          />
+                        </td>
+                        <td style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'center' }}>
+                          {proveedor}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '20px' }}>
+                <button
+                  onClick={handleCancelar}
+                  style={{
+                    background: '#fff',
+                    color: '#333',
+                    border: '2px solid #ccc',
+                    padding: '12px 40px',
+                    borderRadius: '5px',
+                    fontSize: '16px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleActualizarStock}
+                  disabled={!puedeActualizarStock()}
+                  title={!puedeActualizarStock() ? 'Acción no disponible para su perfil de usuario' : ''}
+                  style={{
+                    background: puedeActualizarStock() ? '#5DADE2' : '#ccc',
+                    color: '#fff',
+                    border: 'none',
+                    padding: '12px 40px',
+                    borderRadius: '5px',
+                    fontSize: '16px',
+                    cursor: puedeActualizarStock() ? 'pointer' : 'not-allowed'
+                  }}
+                >
+                  Actualizar
+                </button>
+              </div>
+            </>
+          ) : (
+            <div style={{ 
+              padding: '40px', 
+              textAlign: 'center', 
+              color: '#666',
+              fontSize: '16px'
+            }}>
+              {menuSeleccionado ? 'Este menú no tiene insumos asignados' : 'Seleccione un menú para ver sus insumos'}
+            </div>
+          )}
         </div>
       )}
 
@@ -267,18 +463,17 @@ const ManejarStock = () => {
       {tabActiva === 'simular' && (
         <div>
           <div style={{ 
-            maxWidth: '500px', 
             marginBottom: '30px',
             display: 'flex',
             gap: '15px',
-            alignItems: 'flex-end'
+            alignItems: 'flex-end',
+            maxWidth: '600px'
           }}>
             <div style={{ flex: 1 }}>
               <label style={{ fontSize: '14px', display: 'block', marginBottom: '5px' }}>
                 Seleccionar Evento
               </label>
-              <input
-                type="date"
+              <select
                 value={eventoSeleccionado}
                 onChange={(e) => setEventoSeleccionado(e.target.value)}
                 style={{
@@ -286,9 +481,17 @@ const ManejarStock = () => {
                   padding: '10px',
                   border: '1px solid #ccc',
                   borderRadius: '4px',
-                  fontSize: '14px'
+                  fontSize: '14px',
+                  background: '#fff'
                 }}
-              />
+              >
+                <option value="">dd/mm/aaaa</option>
+                {eventos.map(evento => (
+                  <option key={evento.idEvento} value={evento.idEvento}>
+                    {formatearFecha(evento.fecha)} - {evento.nombreCliente}
+                  </option>
+                ))}
+              </select>
             </div>
             
             <button
@@ -309,81 +512,81 @@ const ManejarStock = () => {
           </div>
 
           {proyeccion.length > 0 && (
-            <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '30px' }}>
-              <thead>
-                <tr style={{ background: '#5DADE2', color: '#fff' }}>
-                  <th style={{ padding: '12px', border: '1px solid #333' }}>Nombre Menu</th>
-                  <th style={{ padding: '12px', border: '1px solid #333' }}>Nombre Insumo</th>
-                  <th style={{ padding: '12px', border: '1px solid #333' }}>Cant x Persona</th>
-                  <th style={{ padding: '12px', border: '1px solid #333' }}>Cantidad actual</th>
-                  <th style={{ padding: '12px', border: '1px solid #333' }}>Cantidad total para el evento</th>
-                  <th style={{ padding: '12px', border: '1px solid #333' }}>Proveedor</th>
-                  <th style={{ padding: '12px', border: '1px solid #333' }}>Cantidad pedido</th>
-                </tr>
-              </thead>
-              <tbody>
-                {proyeccion.map((item, index) => (
-                  <tr key={index}>
-                    <td style={{ padding: '12px', border: '1px solid #ddd' }}>
-                      {item.nombreMenu || '[nombre menu]'}
-                    </td>
-                    <td style={{ padding: '12px', border: '1px solid #ddd' }}>
-                      {item.nombreInsumo}
-                    </td>
-                    <td style={{ padding: '12px', border: '1px solid #ddd' }}>
-                      {item.cantidadPorPersona}
-                    </td>
-                    <td style={{ padding: '12px', border: '1px solid #ddd' }}>
-                      {item.stockActual}
-                    </td>
-                    <td style={{ padding: '12px', border: '1px solid #ddd' }}>
-                      {item.consumoProyectado}
-                    </td>
-                    <td style={{ padding: '12px', border: '1px solid #ddd' }}>
-                      [nombre proveedor]
-                    </td>
-                    <td style={{ padding: '12px', border: '1px solid #ddd' }}>
-                      {item.deficit > 0 ? item.deficit : 0}
-                    </td>
+            <>
+              <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '30px' }}>
+                <thead>
+                  <tr style={{ background: '#5DADE2', color: '#fff' }}>
+                    <th style={{ padding: '12px', border: '1px solid #333' }}>Nombre Menu</th>
+                    <th style={{ padding: '12px', border: '1px solid #333' }}>Nombre Insumo</th>
+                    <th style={{ padding: '12px', border: '1px solid #333' }}>Cant x Persona</th>
+                    <th style={{ padding: '12px', border: '1px solid #333' }}>Cantidad actual</th>
+                    <th style={{ padding: '12px', border: '1px solid #333' }}>Cantidad total para el evento</th>
+                    <th style={{ padding: '12px', border: '1px solid #333' }}>Proveedor</th>
+                    <th style={{ padding: '12px', border: '1px solid #333' }}>Cantidad pedido</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
+                </thead>
+                <tbody>
+                  {proyeccion.map((item, index) => (
+                    <tr key={index}>
+                      <td style={{ padding: '12px', border: '1px solid #ddd' }}>
+                        {item.nombreMenu}
+                      </td>
+                      <td style={{ padding: '12px', border: '1px solid #ddd' }}>
+                        {item.nombreInsumo}
+                      </td>
+                      <td style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'center' }}>
+                        {item.cantidadPorPersona}
+                      </td>
+                      <td style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'center' }}>
+                        {item.stockActual}
+                      </td>
+                      <td style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'center' }}>
+                        {item.consumoProyectado}
+                      </td>
+                      <td style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'center' }}>
+                        {item.nombreProveedor || 'N/A'}
+                      </td>
+                      <td style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'center' }}>
+                        {item.deficit > 0 ? item.deficit : 0}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
 
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
-            <button
-              onClick={() => navigate('/')}
-              style={{
-                background: '#fff',
-                color: '#333',
-                border: '2px solid #ccc',
-                padding: '12px 40px',
-                borderRadius: '5px',
-                fontSize: '16px',
-                cursor: 'pointer'
-              }}
-            >
-              Salir
-            </button>
-            
-            {proyeccion.length > 0 && (
-              <button
-                onClick={handleExportarCSV}
-                style={{
-                  background: '#28a745',
-                  color: '#fff',
-                  border: 'none',
-                  padding: '12px 40px',
-                  borderRadius: '5px',
-                  fontSize: '16px',
-                  cursor: 'pointer'
-                }}
-              >
-                Exportar CSV
-              </button>
-            )}
-          </div>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
+                <button
+                  onClick={handleExportarCSV}
+                  style={{
+                    background: '#5DADE2',
+                    color: '#fff',
+                    border: 'none',
+                    padding: '12px 40px',
+                    borderRadius: '5px',
+                    fontSize: '16px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Exportar CSV
+                </button>
+                
+                <button
+                  onClick={() => navigate('/')}
+                  style={{
+                    background: '#fff',
+                    color: '#333',
+                    border: '2px solid #ccc',
+                    padding: '12px 40px',
+                    borderRadius: '5px',
+                    fontSize: '16px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Salir
+                </button>
+              </div>
+            </>
+          )}
         </div>
       )}
     </div>
