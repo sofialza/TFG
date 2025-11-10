@@ -12,7 +12,6 @@ const ManejarStock = () => {
   };
   const [tabActiva, setTabActiva] = useState('actual');
   const [insumos, setInsumos] = useState([]);
-  const [proveedores, setProveedores] = useState([]);
   const [menus, setMenus] = useState([]);
   
   const [eventoSeleccionado, setEventoSeleccionado] = useState('');
@@ -24,14 +23,12 @@ const ManejarStock = () => {
 
   const cargarDatos = async () => {
     try {
-      const [insumosRes, proveedoresRes, menusRes] = await Promise.all([
+      const [insumosRes, menusRes] = await Promise.all([
         api.get('/insumos'),
-        api.get('/proveedores'),
         api.get('/menus')
       ]);
       
       setInsumos(insumosRes.data);
-      setProveedores(proveedoresRes.data || []);
       setMenus(menusRes.data);
     } catch (error) {
       console.error('Error cargando datos:', error);
@@ -197,33 +194,37 @@ const ManejarStock = () => {
           <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '30px' }}>
             <thead>
               <tr style={{ background: '#5DADE2', color: '#fff' }}>
-                <th style={{ padding: '12px', border: '1px solid #333' }}>Nombre del Menu</th>
-                <th style={{ padding: '12px', border: '1px solid #333' }}>Nombre Insumo</th>
-                <th style={{ padding: '12px', border: '1px solid #333' }}>Cant x Persona</th>
-                <th style={{ padding: '12px', border: '1px solid #333' }}>Stock Actual</th>
-                <th style={{ padding: '12px', border: '1px solid #333' }}>Nombre Proveedor</th>
+                <th style={{ padding: '12px', border: '1px solid #333', textAlign: 'left' }}>Nombre Insumo</th>
+                <th style={{ padding: '12px', border: '1px solid #333', textAlign: 'center' }}>Stock Actual</th>
+                <th style={{ padding: '12px', border: '1px solid #333', textAlign: 'center' }}>Unidad</th>
+                <th style={{ padding: '12px', border: '1px solid #333', textAlign: 'center' }}>Última Actualización</th>
               </tr>
             </thead>
             <tbody>
-              {insumos.map((insumo) => (
-                <tr key={insumo.idInsumo}>
-                  <td style={{ padding: '12px', border: '1px solid #ddd' }}>
-                    [nombre menu]
-                  </td>
-                  <td style={{ padding: '12px', border: '1px solid #ddd' }}>
-                    {insumo.nombre}
-                  </td>
-                  <td style={{ padding: '12px', border: '1px solid #ddd' }}>
-                    [ex.x]gr.
-                  </td>
-                  <td style={{ padding: '12px', border: '1px solid #ddd' }}>
-                    {insumo.cantidadActual} {insumo.unidadMedida}
-                  </td>
-                  <td style={{ padding: '12px', border: '1px solid #ddd' }}>
-                    [nombre proveedor]
+              {insumos.length > 0 ? (
+                insumos.map((insumo) => (
+                  <tr key={insumo.idInsumo}>
+                    <td style={{ padding: '12px', border: '1px solid #ddd' }}>
+                      {insumo.nombre}
+                    </td>
+                    <td style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'center' }}>
+                      {insumo.cantidadActual}
+                    </td>
+                    <td style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'center' }}>
+                      {insumo.unidadMedida}
+                    </td>
+                    <td style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'center' }}>
+                      {new Date(insumo.fechaActualizacion).toLocaleDateString('es-AR')}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="4" style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
+                    No hay insumos registrados
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
 
