@@ -1,0 +1,306 @@
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import api from '../services/api';
+
+const ManejarStock = () => {
+  const navigate = useNavigate();
+  const [tabActiva, setTabActiva] = useState('actual');
+  const [insumos, setInsumos] = useState([]);
+  const [proveedores, setProveedores] = useState([]);
+  const [menus, setMenus] = useState([]);
+  
+  const [eventoSeleccionado, setEventoSeleccionado] = useState('');
+  const [proyeccion, setProyeccion] = useState([]);
+
+  useEffect(() => {
+    cargarDatos();
+  }, []);
+
+  const cargarDatos = async () => {
+    try {
+      const [insumosRes, proveedoresRes, menusRes] = await Promise.all([
+        api.get('/insumos'),
+        api.get('/proveedores'),
+        api.get('/menus')
+      ]);
+      
+      setInsumos(insumosRes.data);
+      setProveedores(proveedoresRes.data || []);
+      setMenus(menusRes.data);
+    } catch (error) {
+      console.error('Error cargando datos:', error);
+    }
+  };
+
+  const handleActualizarStock = async () => {
+    try {
+      alert('Stock actualizado exitosamente');
+      cargarDatos();
+    } catch (error) {
+      console.error('Error actualizando stock:', error);
+      alert('Error al actualizar stock');
+    }
+  };
+
+  const handleSimularPedido = async () => {
+    if (!eventoSeleccionado) {
+      alert('Seleccione un evento primero');
+      return;
+    }
+
+    try {
+      const response = await api.get(`/eventos/${eventoSeleccionado}/proyeccion-consumo`);
+      setProyeccion(response.data);
+    } catch (error) {
+      console.error('Error simulando pedido:', error);
+      alert('Error al simular pedido');
+    }
+  };
+
+  return (
+    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
+      {/* Header */}
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+        marginBottom: '30px'
+      }}>
+        <h1 style={{ fontSize: '24px', margin: 0 }}>Manejar Stock</h1>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <div style={{
+            width: '20px',
+            height: '20px',
+            borderRadius: '50%',
+            border: '2px solid #333'
+          }}></div>
+          <div style={{
+            width: '20px',
+            height: '20px',
+            borderRadius: '50%',
+            border: '2px solid #333'
+          }}></div>
+          <div style={{
+            width: '20px',
+            height: '20px',
+            borderRadius: '50%',
+            border: '2px solid #5DADE2',
+            background: '#5DADE2'
+          }}></div>
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div style={{ display: 'flex', borderBottom: '2px solid #333', marginBottom: '30px' }}>
+        <button
+          onClick={() => setTabActiva('actual')}
+          style={{
+            flex: 1,
+            padding: '15px',
+            background: tabActiva === 'actual' ? '#f8f8f8' : '#fff',
+            border: 'none',
+            borderBottom: tabActiva === 'actual' ? '3px solid #5DADE2' : 'none',
+            fontSize: '16px',
+            cursor: 'pointer',
+            fontWeight: tabActiva === 'actual' ? 'bold' : 'normal'
+          }}
+        >
+          Stock Actual
+        </button>
+        <button
+          onClick={() => setTabActiva('simular')}
+          style={{
+            flex: 1,
+            padding: '15px',
+            background: tabActiva === 'simular' ? '#f8f8f8' : '#fff',
+            border: 'none',
+            borderBottom: tabActiva === 'simular' ? '3px solid #5DADE2' : 'none',
+            fontSize: '16px',
+            cursor: 'pointer',
+            fontWeight: tabActiva === 'simular' ? 'bold' : 'normal'
+          }}
+        >
+          Simular pedido
+        </button>
+      </div>
+
+      {/* Contenido Stock Actual */}
+      {tabActiva === 'actual' && (
+        <div>
+          <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '30px' }}>
+            <thead>
+              <tr style={{ background: '#5DADE2', color: '#fff' }}>
+                <th style={{ padding: '12px', border: '1px solid #333' }}>Nombre del Menu</th>
+                <th style={{ padding: '12px', border: '1px solid #333' }}>Nombre Insumo</th>
+                <th style={{ padding: '12px', border: '1px solid #333' }}>Cant x Persona</th>
+                <th style={{ padding: '12px', border: '1px solid #333' }}>Stock Actual</th>
+                <th style={{ padding: '12px', border: '1px solid #333' }}>Nombre Proveedor</th>
+              </tr>
+            </thead>
+            <tbody>
+              {insumos.map((insumo) => (
+                <tr key={insumo.idInsumo}>
+                  <td style={{ padding: '12px', border: '1px solid #ddd' }}>
+                    [nombre menu]
+                  </td>
+                  <td style={{ padding: '12px', border: '1px solid #ddd' }}>
+                    {insumo.nombre}
+                  </td>
+                  <td style={{ padding: '12px', border: '1px solid #ddd' }}>
+                    [ex.x]gr.
+                  </td>
+                  <td style={{ padding: '12px', border: '1px solid #ddd' }}>
+                    {insumo.cantidadActual} {insumo.unidadMedida}
+                  </td>
+                  <td style={{ padding: '12px', border: '1px solid #ddd' }}>
+                    [nombre proveedor]
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
+            <button
+              onClick={() => navigate('/')}
+              style={{
+                background: '#fff',
+                color: '#333',
+                border: '2px solid #ccc',
+                padding: '12px 40px',
+                borderRadius: '5px',
+                fontSize: '16px',
+                cursor: 'pointer'
+              }}
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={handleActualizarStock}
+              style={{
+                background: '#5DADE2',
+                color: '#fff',
+                border: 'none',
+                padding: '12px 40px',
+                borderRadius: '5px',
+                fontSize: '16px',
+                cursor: 'pointer'
+              }}
+            >
+              Actualizar
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Contenido Simular Pedido */}
+      {tabActiva === 'simular' && (
+        <div>
+          <div style={{ 
+            maxWidth: '500px', 
+            marginBottom: '30px',
+            display: 'flex',
+            gap: '15px',
+            alignItems: 'flex-end'
+          }}>
+            <div style={{ flex: 1 }}>
+              <label style={{ fontSize: '14px', display: 'block', marginBottom: '5px' }}>
+                Seleccionar Evento
+              </label>
+              <input
+                type="date"
+                value={eventoSeleccionado}
+                onChange={(e) => setEventoSeleccionado(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  border: '1px solid #ccc',
+                  borderRadius: '4px',
+                  fontSize: '14px'
+                }}
+              />
+            </div>
+            
+            <button
+              onClick={handleSimularPedido}
+              style={{
+                background: '#5DADE2',
+                color: '#fff',
+                border: 'none',
+                padding: '10px 30px',
+                borderRadius: '5px',
+                fontSize: '16px',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              Simular pedido
+            </button>
+          </div>
+
+          {proyeccion.length > 0 && (
+            <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '30px' }}>
+              <thead>
+                <tr style={{ background: '#5DADE2', color: '#fff' }}>
+                  <th style={{ padding: '12px', border: '1px solid #333' }}>Nombre Menu</th>
+                  <th style={{ padding: '12px', border: '1px solid #333' }}>Nombre Insumo</th>
+                  <th style={{ padding: '12px', border: '1px solid #333' }}>Cant x Persona</th>
+                  <th style={{ padding: '12px', border: '1px solid #333' }}>Cantidad actual</th>
+                  <th style={{ padding: '12px', border: '1px solid #333' }}>Cantidad total para el evento</th>
+                  <th style={{ padding: '12px', border: '1px solid #333' }}>Proveedor</th>
+                  <th style={{ padding: '12px', border: '1px solid #333' }}>Cantidad pedido</th>
+                </tr>
+              </thead>
+              <tbody>
+                {proyeccion.map((item, index) => (
+                  <tr key={index}>
+                    <td style={{ padding: '12px', border: '1px solid #ddd' }}>
+                      {item.nombreMenu || '[nombre menu]'}
+                    </td>
+                    <td style={{ padding: '12px', border: '1px solid #ddd' }}>
+                      {item.nombreInsumo}
+                    </td>
+                    <td style={{ padding: '12px', border: '1px solid #ddd' }}>
+                      {item.cantidadPorPersona}
+                    </td>
+                    <td style={{ padding: '12px', border: '1px solid #ddd' }}>
+                      {item.stockActual}
+                    </td>
+                    <td style={{ padding: '12px', border: '1px solid #ddd' }}>
+                      {item.consumoProyectado}
+                    </td>
+                    <td style={{ padding: '12px', border: '1px solid #ddd' }}>
+                      [nombre proveedor]
+                    </td>
+                    <td style={{ padding: '12px', border: '1px solid #ddd' }}>
+                      {item.deficit > 0 ? item.deficit : 0}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+
+          <div style={{ textAlign: 'center' }}>
+            <button
+              onClick={() => navigate('/')}
+              style={{
+                background: '#fff',
+                color: '#333',
+                border: '2px solid #ccc',
+                padding: '12px 40px',
+                borderRadius: '5px',
+                fontSize: '16px',
+                cursor: 'pointer'
+              }}
+            >
+              Salir
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default ManejarStock;
