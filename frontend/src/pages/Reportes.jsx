@@ -39,11 +39,8 @@ const Reportes = () => {
 
   const formatearFecha = (fecha) => {
     if (!fecha) return '';
-    return new Date(fecha).toLocaleDateString('es-AR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    });
+    const [anio, mes, dia] = fecha.split('-');
+    return `${dia}/${mes}/${anio}`;
   };
 
   const handleCambiarCantidad = (idDetalle, cantidad) => {
@@ -63,8 +60,11 @@ const Reportes = () => {
         cantidadRecibida: parseFloat(edicionPendientes[detalle.idOcDet] || detalle.cantidadPedida)
       }));
 
+      const hoy = new Date();
+      const fechaRecepcion = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}-${String(hoy.getDate()).padStart(2, '0')}`;
+      
       const confirmacion = {
-        fechaRecepcion: new Date().toISOString().split('T')[0],
+        fechaRecepcion: fechaRecepcion,
         detalles: detalles
       };
 
@@ -118,7 +118,9 @@ const Reportes = () => {
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = `historico_compras_${new Date().toISOString().split('T')[0]}.csv`;
+    const hoy = new Date();
+    const fechaArchivo = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}-${String(hoy.getDate()).padStart(2, '0')}`;
+    link.download = `historico_compras_${fechaArchivo}.csv`;
     link.click();
   };
 

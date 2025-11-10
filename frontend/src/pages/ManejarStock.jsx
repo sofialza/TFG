@@ -70,7 +70,7 @@ const ManejarStock = () => {
         insumosData.forEach(insumo => {
           editados[insumo.idInsumo] = {
             cantidadActual: insumo.cantidadActual,
-            fechaActualizacion: new Date(insumo.fechaActualizacion).toISOString().split('T')[0]
+            fechaActualizacion: insumo.fechaActualizacion
           };
         });
         setInsumosEditados(editados);
@@ -137,10 +137,7 @@ const ManejarStock = () => {
       return;
     }
     
-    const eventosFiltrados = eventos.filter(evento => {
-      const fechaEvento = new Date(evento.fecha).toISOString().split('T')[0];
-      return fechaEvento === fecha;
-    });
+    const eventosFiltrados = eventos.filter(evento => evento.fecha === fecha);
     
     setEventosPorFecha(eventosFiltrados);
     
@@ -238,7 +235,9 @@ const ManejarStock = () => {
     const url = URL.createObjectURL(blob);
     
     link.setAttribute('href', url);
-    link.setAttribute('download', `proyeccion_consumo_${new Date().toISOString().split('T')[0]}.csv`);
+    const hoy = new Date();
+    const fechaArchivo = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}-${String(hoy.getDate()).padStart(2, '0')}`;
+    link.setAttribute('download', `proyeccion_consumo_${fechaArchivo}.csv`);
     link.style.visibility = 'hidden';
     
     document.body.appendChild(link);
@@ -302,10 +301,7 @@ const ManejarStock = () => {
 
   const formatearFecha = (fecha) => {
     if (!fecha) return '';
-    const date = new Date(fecha);
-    const dia = String(date.getDate()).padStart(2, '0');
-    const mes = String(date.getMonth() + 1).padStart(2, '0');
-    const anio = date.getFullYear();
+    const [anio, mes, dia] = fecha.split('-');
     return `${dia}/${mes}/${anio}`;
   };
 
