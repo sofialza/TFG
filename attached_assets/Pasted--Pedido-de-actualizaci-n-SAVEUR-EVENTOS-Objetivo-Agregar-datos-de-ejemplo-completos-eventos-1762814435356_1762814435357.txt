@@ -1,0 +1,106 @@
+🧾 Pedido de actualización – SAVEUR EVENTOS
+🎯 Objetivo
+
+Agregar datos de ejemplo completos (eventos, menús e insumos) y revisar que las pantallas Stock Actual y Simular Pedido funcionen correctamente con esos datos visibles y navegables.
+El propósito es poder probar el flujo real del sistema (stock, alertas, pedidos, reportes e histórico).
+
+🧩 1. Cargar ejemplos de eventos
+
+Agregar al menos 5 eventos en la base de datos con fechas variadas:
+
+Tipo de evento	Descripción	Ejemplo sugerido
+Evento pasado	Para que aparezca en el histórico de compras.	“Aniversario La Plata” – 20/10/2025
+Evento futuro lejano	No debe generar alertas todavía.	“Fiesta de Fin de Año” – 30/12/2025
+Evento próximo 1	A menos de 15 días, debe generar alertas y pedidos.	“Cumpleaños Sofía” – 14/11/2025
+Evento próximo 2	También dentro del rango de alertas.	“Casamiento María y Lucas” – 18/11/2025
+Evento próximo 3	Otro evento activo para probar stock.	“Evento Corporativo TechSA” – 25/11/2025
+
+Cada evento debe:
+
+Estar asociado a menús existentes (por ejemplo: Entrada fría, Menú principal, Mesa dulce).
+
+Tener cantidad de invitados distinta (100–200 aprox.).
+
+Incluir extras seleccionados (al menos uno por evento).
+
+🧩 2. Revisar o crear menús con insumos asociados
+
+Verificar que existan menús completos y funcionales, cada uno con sus insumos y proveedores.
+
+Ejemplo de estructura esperada:
+
+🥗 Entrada fría: Lechuga, Tomate, Zanahoria.
+
+🍝 Menú principal: Pan lactal, Jamón, Queso.
+
+🍰 Mesa dulce: Harina, Azúcar, Manteca, Galletitas.
+
+🥦 Veggie: Palta, Pan integral, Tomate seco.
+
+Cada insumo debe tener:
+
+Unidad de medida (gr, un, kg, etc.).
+
+Cantidad de stock actual.
+
+Proveedor asociado.
+
+Esto es importante para que la pestaña Simular Pedido pueda mostrar correctamente los cálculos de consumo.
+
+🧩 3. Revisar pantallas y comportamiento
+🔹 Stock Actual
+
+Verificar que la tabla se muestre siempre visible, con columnas:
+| Menú | Insumo | Cant. x persona | Stock actual | Proveedor | Fecha actualización |
+
+Al seleccionar “Todos” en el filtro de menú, deben verse los insumos de todos los menús.
+
+La columna Stock actual debe ser editable.
+
+La columna Fecha de actualización debe actualizarse automáticamente al guardar.
+
+Si no hay datos, mostrar “Sin datos”.
+
+🔹 Simular Pedido
+
+En el campo “Seleccionar evento”, deben aparecer los eventos de ejemplo creados, con formato:
+Cliente – Fecha del evento (dd/mm/aaaa)
+
+Al elegir un evento, la tabla debe mostrar los insumos correspondientes a los menús asociados, con las siguientes columnas:
+| Menú | Insumo | Cant. x persona | Stock actual | Total para el evento | Proveedor | Cantidad a pedir |
+
+Verificar que:
+
+Los eventos próximos (dentro de 15 días) muestren faltantes y permitan generar orden.
+
+Los eventos futuros o pasados no generen alertas ni pedidos.
+
+El botón “Generar Orden de Compra” funcione correctamente desde esta vista.
+
+El cálculo de cantidad a pedir = (invitados × cant. x persona) – stock actual se muestre correctamente.
+
+🧩 4. Resultado esperado
+
+Al finalizar esta carga y revisión:
+
+La aplicación debe permitir simular pedidos reales con los eventos de ejemplo.
+
+Debe ser posible ver insumos faltantes, generar órdenes y confirmar recepción.
+
+El stock actualizado debe reflejarse automáticamente.
+
+El histórico de compras debe incluir el evento pasado como ejemplo.
+
+Las tablas deben tener datos visibles, no vacíos.
+
+🧩 5. En resumen
+
+Crear 5 eventos (1 pasado, 3 próximos, 1 futuro).
+
+Verificar menús con insumos reales.
+
+Revisar pantallas Stock Actual y Simular Pedido (datos visibles, columnas correctas, cálculos activos).
+
+Confirmar que el flujo completo funcione:
+
+Evento → Simular Pedido → Generar Orden → Confirmar → Histórico.

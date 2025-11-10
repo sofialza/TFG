@@ -1,5 +1,6 @@
 package com.eventos.service;
 
+import com.eventos.dto.EventoCreateDTO;
 import com.eventos.model.*;
 import com.eventos.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,45 @@ public class EventoService {
     
     @Autowired
     private InsumoRepository insumoRepository;
+    
+    @Autowired
+    private MenuRepository menuRepository;
+    
+    @Autowired
+    private ExtraRepository extraRepository;
+    
+    @Autowired
+    private EventoExtraRepository eventoExtraRepository;
+    
+    public Evento crearEvento(EventoCreateDTO dto) {
+        Menu menu = menuRepository.findById(dto.getMenuId())
+                .orElseThrow(() -> new RuntimeException("Menú no encontrado"));
+        
+        Evento evento = new Evento();
+        evento.setNombreCliente(dto.getNombreCliente());
+        evento.setMailCliente(dto.getMailCliente());
+        evento.setTipoEvento(dto.getTipoEvento());
+        evento.setCantidadAsistentes(dto.getCantidadAsistentes());
+        evento.setFecha(dto.getFecha());
+        evento.setItinerario(dto.getItinerario());
+        evento.setMenu(menu);
+        
+        Evento eventoGuardado = eventoRepository.save(evento);
+        
+        if (dto.getExtraIds() != null && !dto.getExtraIds().isEmpty()) {
+            List<Extra> extras = extraRepository.findAllById(dto.getExtraIds());
+            
+            for (Extra extra : extras) {
+                EventoExtra eventoExtra = new EventoExtra();
+                eventoExtra.setEvento(eventoGuardado);
+                eventoExtra.setExtra(extra);
+                eventoExtra.setDescripcion(extra.getDescripcion());
+                eventoExtraRepository.save(eventoExtra);
+            }
+        }
+        
+        return eventoGuardado;
+    }
     
     public Evento crearEvento(Evento evento) {
         return eventoRepository.save(evento);

@@ -123,6 +123,11 @@ const ManejarStock = () => {
     cargarInsumosMenu();
   };
 
+  const handleCancelarSimulacion = () => {
+    setProyeccion([]);
+    setEventoSeleccionado('');
+  };
+
   const handleSimularPedido = async () => {
     if (!eventoSeleccionado) {
       alert('Seleccione un evento primero');
@@ -284,27 +289,10 @@ const ManejarStock = () => {
       <div style={{ 
         display: 'flex', 
         justifyContent: 'space-between', 
-        alignItems: 'center',
+        alignments: 'center',
         marginBottom: '30px'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-          <h1 style={{ fontSize: '24px', margin: 0 }}>Manejar Stock</h1>
-          <button
-            onClick={() => navigate('/')}
-            style={{
-              background: '#5DADE2',
-              color: '#fff',
-              border: 'none',
-              padding: '8px 16px',
-              borderRadius: '4px',
-              fontSize: '14px',
-              cursor: 'pointer',
-              fontWeight: 'bold'
-            }}
-          >
-            ← Volver al Dashboard
-          </button>
-        </div>
+        <h1 style={{ fontSize: '24px', margin: 0 }}>Manejar Stock</h1>
         <div style={{ display: 'flex', gap: '10px' }}>
           <div style={{
             width: '20px',
@@ -640,7 +628,7 @@ const ManejarStock = () => {
                 </button>
                 
                 <button
-                  onClick={() => navigate('/')}
+                  onClick={handleCancelarSimulacion}
                   style={{
                     background: '#fff',
                     color: '#333',
@@ -651,7 +639,7 @@ const ManejarStock = () => {
                     cursor: 'pointer'
                   }}
                 >
-                  Salir
+                  Cancelar
                 </button>
               </div>
             </>
