@@ -100,9 +100,8 @@ const ManejarStock = () => {
 
     try {
       const actualizaciones = Object.entries(insumosEditados).map(async ([idInsumo, datos]) => {
-        await api.put(`/insumos/${idInsumo}`, {
-          cantidadActual: parseFloat(datos.cantidadActual),
-          fechaActualizacion: datos.fechaActualizacion
+        await api.patch(`/insumos/${idInsumo}/stock`, {
+          cantidad: parseFloat(datos.cantidadActual)
         });
       });
 
