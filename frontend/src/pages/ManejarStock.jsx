@@ -55,16 +55,12 @@ const ManejarStock = () => {
       const menu = menuResponse.data;
       
       if (menu.menuInsumos && menu.menuInsumos.length > 0) {
-        const insumosPromises = menu.menuInsumos.map(async (mi) => {
-          const insumoRes = await api.get(`/insumos/${mi.idInsumo}`);
-          return {
-            ...insumoRes.data,
-            cantidadPorPersona: mi.cantidadPorPersona,
-            nombreMenu: menu.nombre
-          };
-        });
+        const insumosData = menu.menuInsumos.map((mi) => ({
+          ...mi.insumo,
+          cantidadPorPersona: mi.cantidadPorPersona,
+          nombreMenu: menu.nombre
+        }));
         
-        const insumosData = await Promise.all(insumosPromises);
         setInsumosMenu(insumosData);
         
         // Inicializar valores editables
