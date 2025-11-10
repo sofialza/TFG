@@ -57,6 +57,50 @@ const ManejarStock = () => {
     }
   };
 
+  const handleExportarCSV = () => {
+    if (proyeccion.length === 0) {
+      alert('No hay datos para exportar');
+      return;
+    }
+
+    const headers = [
+      'Nombre Menu',
+      'Nombre Insumo',
+      'Cant x Persona',
+      'Cantidad actual',
+      'Cantidad total para el evento',
+      'Proveedor',
+      'Cantidad pedido'
+    ];
+
+    const rows = proyeccion.map(item => [
+      item.nombreMenu || '',
+      item.nombreInsumo || '',
+      item.cantidadPorPersona || 0,
+      item.stockActual || 0,
+      item.consumoProyectado || 0,
+      item.nombreProveedor || '',
+      item.deficit > 0 ? item.deficit : 0
+    ]);
+
+    let csvContent = headers.join(',') + '\n';
+    rows.forEach(row => {
+      csvContent += row.map(cell => `"${cell}"`).join(',') + '\n';
+    });
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    
+    link.setAttribute('href', url);
+    link.setAttribute('download', `proyeccion_consumo_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
       {/* Header */}
@@ -281,7 +325,7 @@ const ManejarStock = () => {
             </table>
           )}
 
-          <div style={{ textAlign: 'center' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
             <button
               onClick={() => navigate('/')}
               style={{
@@ -296,6 +340,23 @@ const ManejarStock = () => {
             >
               Salir
             </button>
+            
+            {proyeccion.length > 0 && (
+              <button
+                onClick={handleExportarCSV}
+                style={{
+                  background: '#28a745',
+                  color: '#fff',
+                  border: 'none',
+                  padding: '12px 40px',
+                  borderRadius: '5px',
+                  fontSize: '16px',
+                  cursor: 'pointer'
+                }}
+              >
+                Exportar CSV
+              </button>
+            )}
           </div>
         </div>
       )}
