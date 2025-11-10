@@ -1,9 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 
 const ManejarStock = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  
+  const puedeActualizarStock = () => {
+    return user && (user.role === 'ADMINISTRADOR' || user.role === 'ENCARGADA_COCINA');
+  };
   const [tabActiva, setTabActiva] = useState('actual');
   const [insumos, setInsumos] = useState([]);
   const [proveedores, setProveedores] = useState([]);
@@ -217,18 +223,20 @@ const ManejarStock = () => {
                 cursor: 'pointer'
               }}
             >
-              Cancelar
+              Volver
             </button>
             <button
               onClick={handleActualizarStock}
+              disabled={!puedeActualizarStock()}
+              title={!puedeActualizarStock() ? 'Acción no disponible para su perfil de usuario' : ''}
               style={{
-                background: '#5DADE2',
+                background: puedeActualizarStock() ? '#5DADE2' : '#ccc',
                 color: '#fff',
                 border: 'none',
                 padding: '12px 40px',
                 borderRadius: '5px',
                 fontSize: '16px',
-                cursor: 'pointer'
+                cursor: puedeActualizarStock() ? 'pointer' : 'not-allowed'
               }}
             >
               Actualizar
