@@ -593,15 +593,17 @@ const ManejarStock = () => {
             
             <button
               onClick={handleSimularPedido}
+              disabled={!eventoSeleccionado || eventoSeleccionado === ''}
               style={{
-                background: '#5DADE2',
+                background: (!eventoSeleccionado || eventoSeleccionado === '') ? '#ccc' : '#5DADE2',
                 color: '#fff',
                 border: 'none',
                 padding: '10px 30px',
                 borderRadius: '5px',
                 fontSize: '16px',
-                cursor: 'pointer',
-                whiteSpace: 'nowrap'
+                cursor: (!eventoSeleccionado || eventoSeleccionado === '') ? 'not-allowed' : 'pointer',
+                whiteSpace: 'nowrap',
+                opacity: (!eventoSeleccionado || eventoSeleccionado === '') ? 0.6 : 1
               }}
             >
               Simular pedido
