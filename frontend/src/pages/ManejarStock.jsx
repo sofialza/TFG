@@ -19,6 +19,8 @@ const ManejarStock = () => {
   
   const [eventos, setEventos] = useState([]);
   const [eventoSeleccionado, setEventoSeleccionado] = useState('');
+  const [fechaSeleccionada, setFechaSeleccionada] = useState('');
+  const [eventosPorFecha, setEventosPorFecha] = useState([]);
   const [proyeccion, setProyeccion] = useState([]);
 
   useEffect(() => {
@@ -121,6 +123,34 @@ const ManejarStock = () => {
   const handleCancelarSimulacion = () => {
     setProyeccion([]);
     setEventoSeleccionado('');
+    setFechaSeleccionada('');
+    setEventosPorFecha([]);
+  };
+
+  const handleCambioFecha = (fecha) => {
+    setFechaSeleccionada(fecha);
+    setProyeccion([]);
+    
+    if (!fecha) {
+      setEventosPorFecha([]);
+      setEventoSeleccionado('');
+      return;
+    }
+    
+    const eventosFiltrados = eventos.filter(evento => {
+      const fechaEvento = new Date(evento.fecha).toISOString().split('T')[0];
+      return fechaEvento === fecha;
+    });
+    
+    setEventosPorFecha(eventosFiltrados);
+    
+    if (eventosFiltrados.length === 1) {
+      setEventoSeleccionado(eventosFiltrados[0].idEvento.toString());
+    } else if (eventosFiltrados.length === 0) {
+      setEventoSeleccionado('');
+    } else {
+      setEventoSeleccionado('');
+    }
   };
 
   const handleSimularPedido = async () => {
@@ -511,9 +541,10 @@ const ManejarStock = () => {
               <label style={{ fontSize: '14px', display: 'block', marginBottom: '5px' }}>
                 Fecha del Evento
               </label>
-              <select
-                value={eventoSeleccionado}
-                onChange={(e) => setEventoSeleccionado(e.target.value)}
+              <input
+                type="date"
+                value={fechaSeleccionada}
+                onChange={(e) => handleCambioFecha(e.target.value)}
                 style={{
                   width: '100%',
                   padding: '10px',
@@ -522,14 +553,42 @@ const ManejarStock = () => {
                   fontSize: '14px',
                   background: '#fff'
                 }}
-              >
-                <option value="">dd/mm/aaaa</option>
-                {eventos.map(evento => (
-                  <option key={evento.idEvento} value={evento.idEvento}>
-                    {formatearFecha(evento.fecha)}
-                  </option>
-                ))}
-              </select>
+              />
+              {fechaSeleccionada && eventosPorFecha.length === 0 && (
+                <div style={{ 
+                  marginTop: '8px', 
+                  color: '#e74c3c', 
+                  fontSize: '13px' 
+                }}>
+                  No hay eventos programados para esta fecha
+                </div>
+              )}
+              {fechaSeleccionada && eventosPorFecha.length > 1 && (
+                <div style={{ marginTop: '10px' }}>
+                  <label style={{ fontSize: '14px', display: 'block', marginBottom: '5px' }}>
+                    Seleccione el evento:
+                  </label>
+                  <select
+                    value={eventoSeleccionado}
+                    onChange={(e) => setEventoSeleccionado(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '10px',
+                      border: '1px solid #ccc',
+                      borderRadius: '4px',
+                      fontSize: '14px',
+                      background: '#fff'
+                    }}
+                  >
+                    <option value="">Seleccione...</option>
+                    {eventosPorFecha.map(evento => (
+                      <option key={evento.idEvento} value={evento.idEvento}>
+                        {evento.nombreCliente} - {evento.tipoEvento}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
             </div>
             
             <button
