@@ -68,16 +68,17 @@ Sistema web full-stack para gestionar eventos, controlar inventario de insumos, 
    - Crear nuevos eventos con selección de menú
    - Eliminar eventos
    
-3. **Gestión de Menús**:
-   - Listar todos los menús disponibles
-   - Crear nuevos menús (primer plato, segundo plato, torta)
-   - Eliminar menús
+3. **Gestión de Menús** (Solo visualización - menús precargados):
+   - Los menús están precargados en la base de datos
+   - No se permite CRUD de menús en el MVP
+   - Se seleccionan de los disponibles al crear eventos
    
-4. **Gestión de Insumos**:
+4. **Gestión de Insumos y Stock**:
    - Listar insumos con indicadores de stock
-   - Crear nuevos insumos (nombre, stock actual, unidad de medida)
-   - Eliminar insumos
+   - Actualizar stock actual
    - Sistema de alertas visuales para stock bajo
+   - Proyección de consumo por evento
+   - **Exportar proyección a CSV** ✅
    
 5. **Gestión de Órdenes de Compra**:
    - Listar órdenes con estado (pendiente/aprobada/rechazada)
