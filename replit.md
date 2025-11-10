@@ -63,10 +63,12 @@ Sistema web full-stack para gestionar eventos, controlar inventario de insumos, 
    - Estadísticas en tiempo real (eventos, insumos, alertas)
    - Acceso rápido a todas las secciones del sistema
    
-2. **Gestión de Eventos**:
+2. **Gestión de Eventos (Reservas)**:
    - Listar todos los eventos con detalles (fecha, asistentes, menú)
-   - Crear nuevos eventos con selección de menú
-   - Eliminar eventos
+   - Crear nuevos eventos con selección de menú (permisos: ADMINISTRADOR, ORGANIZADOR_EVENTOS)
+   - Modificar y cancelar eventos (permisos: ADMINISTRADOR, ORGANIZADOR_EVENTOS)
+   - Búsqueda integrada por nombre de cliente y/o fecha
+   - Vista de solo lectura para ENCARGADA_COCINA (botones deshabilitados con tooltips)
    
 3. **Gestión de Menús** (Solo visualización - menús precargados):
    - Los menús están precargados en la base de datos
@@ -75,10 +77,11 @@ Sistema web full-stack para gestionar eventos, controlar inventario de insumos, 
    
 4. **Gestión de Insumos y Stock**:
    - Listar insumos con indicadores de stock
-   - Actualizar stock actual
+   - Actualizar stock actual (permisos: ADMINISTRADOR, ENCARGADA_COCINA)
    - Sistema de alertas visuales para stock bajo
    - Proyección de consumo por evento
    - **Exportar proyección a CSV** ✅
+   - Controles deshabilitados con tooltips para roles sin permisos
    
 5. **Gestión de Órdenes de Compra**:
    - Listar órdenes con estado (pendiente/aprobada/rechazada)
@@ -101,10 +104,25 @@ Sistema web full-stack para gestionar eventos, controlar inventario de insumos, 
    - Dashboard Encargada de Cocina: Alertas de stock y control de insumos
    - Dashboard Organizador de Eventos: Calendario de eventos y menús
 
-## Roles de Usuario
-1. **Administrador**: Decisiones estratégicas, contratación proveedores
-2. **Encargada de Cocina**: Preparación pedidos, control insumos
-3. **Organizador de Eventos**: Armado eventos, contacto clientes
+## Roles de Usuario y Permisos
+1. **Administrador**: 
+   - Acceso completo a todas las funcionalidades
+   - Eventos: CRUD completo
+   - Stock: Actualizar y visualizar proyecciones
+   - Reservas: Modificar y cancelar
+   - Reportes: Ver todos
+   
+2. **Encargada de Cocina**: 
+   - Stock: Actualizar stock y visualizar proyecciones (CRUD completo)
+   - Reservas: Solo visualización (no puede modificar/cancelar)
+   - Reportes: Ver reportes de stock y compras
+   - Eventos: Solo visualización en dashboard
+   
+3. **Organizador de Eventos**: 
+   - Eventos: CRUD completo (crear, modificar, cancelar)
+   - Reservas: Modificar y cancelar eventos
+   - Stock: Solo visualización de proyecciones (no puede actualizar stock)
+   - Reportes: Ver reportes de eventos
 
 ## Base de Datos
 PostgreSQL con 11 tablas creadas automáticamente por Hibernate:
@@ -138,12 +156,24 @@ cd frontend && npm run dev
 - ✅ Sistema de autenticación con login y protección de rutas
 - ✅ Componentes antiguos eliminados (DashboardAdministrador, DashboardEncargadaCocina, etc.)
 - ✅ Ambos workflows (frontend/backend) corriendo sin errores de serialización
+- ✅ Control de permisos granular por rol en todas las vistas
+- ✅ Búsqueda de eventos simplificada (integrada en tabla, sin tabs separadas)
+- ✅ Exportación CSV de proyección de consumo
+- ✅ Controles visuales (botones grises + tooltips) para acciones no permitidas por rol
 
 ## Próximos Pasos (Opcional)
-1. Implementar autenticación JWT con backend (actualmente es solo frontend)
-2. Testing exhaustivo y optimización
-3. Deployment a producción
-4. Reportes en PDF/Excel
+1. **Implementar Extras**: Agregar checkboxes de extras en CrearEvento y ModificarEvento
+2. **Autenticación Backend**: Implementar JWT con backend (actualmente es solo frontend)
+3. **Testing**: Testing exhaustivo y optimización
+4. **Deployment**: Publicar a producción
+5. **Reportes Avanzados**: Exportar reportes en PDF/Excel
+
+## Limitaciones de Seguridad (Solo MVP)
+⚠️ **IMPORTANTE**: La autenticación actual es **solo frontend** (localStorage):
+- Los roles y permisos se gestionan en el cliente
+- No hay validación de permisos en el backend
+- Para producción, se requiere implementar JWT con Spring Security
+- La API REST actual es pública (sin autenticación)
 
 ## Notas Técnicas
 - El proyecto NO usa MySQL porque en Replit, PostgreSQL está integrado nativamente
