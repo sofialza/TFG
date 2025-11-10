@@ -144,7 +144,7 @@ cd frontend && npm run dev
 
 ## Estado Actual - Sistema Completo ✅
 - ✅ Backend Java completamente funcional con @JsonIgnore en relaciones bidireccionales
-- ✅ Base de datos PostgreSQL configurada con datos de prueba
+- ✅ Base de datos PostgreSQL configurada con datos de prueba y históricos
 - ✅ API REST completa con 8 controllers
 - ✅ Proxy de Vite configurado para conectar frontend con backend
 - ✅ Dashboard Principal "SAVEUR EVENTOS" unificado para todos los roles
@@ -153,13 +153,17 @@ cd frontend && npm run dev
 - ✅ 6 vistas principales: DashboardPrincipal, CrearEvento, ModificarEvento, Reservas, ManejarStock, Reportes
 - ✅ Sistema de alertas de stock bajo funcionando
 - ✅ Proyección de consumo automática operativa
-- ✅ Sistema de autenticación con login y protección de rutas
+- ✅ Sistema de autenticación con login y protección de rutas (roles en MAYÚSCULAS)
 - ✅ Componentes antiguos eliminados (DashboardAdministrador, DashboardEncargadaCocina, etc.)
 - ✅ Ambos workflows (frontend/backend) corriendo sin errores de serialización
 - ✅ Control de permisos granular por rol en todas las vistas
 - ✅ Búsqueda de eventos simplificada (integrada en tabla, sin tabs separadas)
 - ✅ Exportación CSV de proyección de consumo
 - ✅ Controles visuales (botones grises + tooltips) para acciones no permitidas por rol
+- ✅ Botones "Volver al Dashboard" en ManejarStock y Reportes
+- ✅ Cada menú tiene 8-9 insumos completos (bebidas, aceite, ingredientes principales)
+- ✅ 7 eventos históricos agregados para reportes (julio-octubre 2025)
+- ✅ Filtro de fecha funcional con formato dd/mm/yyyy en visualización
 
 ## Próximos Pasos (Opcional)
 1. **Implementar Extras**: Agregar checkboxes de extras en CrearEvento y ModificarEvento
