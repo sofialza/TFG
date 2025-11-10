@@ -75,12 +75,20 @@ Sistema web full-stack para gestionar eventos, controlar inventario de insumos, 
    - No se permite CRUD de menús en el MVP
    - Se seleccionan de los disponibles al crear eventos
    
-4. **Gestión de Insumos y Stock**:
-   - Listar insumos con indicadores de stock
-   - Actualizar stock actual (permisos: ADMINISTRADOR, ENCARGADA_COCINA)
-   - Sistema de alertas visuales para stock bajo
-   - Proyección de consumo por evento
-   - **Exportar proyección a CSV** ✅
+4. **Gestión de Insumos y Stock** (ManejarStock):
+   - **Stock Actual**:
+     - Selector de menú para filtrar insumos por menú
+     - Tabla con columnas: Nombre del Menu, Nombre Insumo, Cant x Persona, Stock Actual, Fecha Actualización, Nombre Proveedor
+     - Campos editables: Stock Actual (tipo number) y Fecha Actualización (tipo date)
+     - Actualizar stock (permisos: ADMINISTRADOR, ENCARGADA_COCINA)
+     - Proveedores se obtienen de relación provInsumos o muestran "N/A"
+     - Botones: Cancelar (restaura valores) y Actualizar (guarda cambios)
+   - **Simular Pedido**:
+     - Selector de eventos con formato dd/mm/aaaa
+     - Tabla completa con todas las columnas según diseño
+     - Columnas: Nombre Menu, Nombre Insumo, Cant x Persona, Cantidad actual, Cantidad total para el evento, Proveedor, Cantidad pedido
+     - Enriquecimiento automático de proveedores desde insumos
+     - **Exportar proyección a CSV** con proveedores reales ✅
    - Controles deshabilitados con tooltips para roles sin permisos
    
 5. **Gestión de Órdenes de Compra**:
