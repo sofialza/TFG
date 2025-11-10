@@ -178,7 +178,7 @@ const Reservas = () => {
                     {evento.cantidadAsistentes}
                   </td>
                   <td style={{ padding: '12px', border: '1px solid #ddd' }}>
-                    {evento.menu ? `[Menu entrada], [Menu principal], [Menu dulce]` : 'Sin menú'}
+                    {evento.menu ? evento.menu.nombre : 'Sin menú'}
                   </td>
                   <td style={{ padding: '12px', border: '1px solid #ddd' }}>
                     {evento.tipoEvento || '[Tipo evento]'}

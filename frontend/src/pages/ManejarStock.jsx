@@ -116,7 +116,7 @@ const ManejarStock = () => {
   };
 
   const handleCancelar = () => {
-    cargarInsumosMenu();
+    navigate('/');
   };
 
   const handleCancelarSimulacion = () => {
