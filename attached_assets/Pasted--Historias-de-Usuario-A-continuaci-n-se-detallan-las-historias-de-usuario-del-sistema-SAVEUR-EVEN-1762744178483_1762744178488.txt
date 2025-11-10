@@ -1,0 +1,154 @@
+📋 Historias de Usuario
+
+A continuación se detallan las historias de usuario del sistema SAVEUR EVENTOS, con su descripción, criterios de aceptación, prioridad y puntaje.
+
+HU-001 – Crear Evento
+
+Descripción:
+Como organizador de eventos, quiero crear un nuevo evento para poder comenzar con su planificación.
+
+Criterios de aceptación:
+
+CA1: Al ingresar a la opción “Crear evento”, se abre una pantalla donde puedo cargar los datos del evento:
+
+Nombre y mail del cliente
+
+Fecha del evento
+
+Cantidad de invitados
+
+Menú principal, secundario y postre
+
+Itinerario
+
+Extras (si los hay)
+
+CA2: Al presionar Guardar, el evento se crea y ocupa su lugar en el calendario.
+
+Prioridad: Alta  Puntos: 8
+
+HU-002 – Modificar Evento
+
+Descripción:
+Como organizador de eventos, quiero poder modificar un evento existente para actualizar los detalles cuando sea necesario.
+
+Criterios de aceptación:
+
+CA1: Desde los detalles del evento puedo seleccionar “Modificar” y actualizar:
+
+Nombre y correo del cliente
+
+Fecha del evento
+
+Cantidad de invitados
+
+Menú (principal, secundario y postre)
+
+Extras (si los hubiera)
+
+CA2: Al guardar, los cambios se actualizan correctamente y el calendario se refresca.
+
+Prioridad: Baja  Puntos: 3
+
+HU-003 – Ver Lista de Reservas
+
+Descripción:
+Como organizador de eventos, quiero ver una lista de todas las reservas realizadas para tener control de los eventos programados.
+
+Criterios de aceptación:
+
+CA1: En la vista “Reservas”, al cargarse la pantalla, se muestran todas las reservas con:
+
+Nombre del cliente
+
+Fecha del evento
+
+Menú seleccionado
+
+Número de invitados
+
+Prioridad: Media  Puntos: 5
+
+HU-004 – Cancelar Reserva
+
+Descripción:
+Como organizador de eventos, quiero cancelar una reserva para liberar el espacio y evitar superposiciones.
+
+Criterios de aceptación:
+
+CA1: Al visualizar una reserva y seleccionar “Cancelar”, el evento se elimina de la lista y libera su espacio en el calendario.
+
+Prioridad: Baja  Puntos: 3
+
+HU-005 – Buscar Evento
+
+Descripción:
+Como organizador de eventos, quiero buscar una reserva para localizarla rápidamente y realizar cambios si es necesario.
+
+Criterios de aceptación:
+
+CA1: Al aplicar filtros por cliente o fecha, la lista se filtra correctamente mostrando solo los eventos coincidentes.
+
+Prioridad: Alta  Puntos: 8
+
+HU-006 – Actualizar Insumos
+
+Descripción:
+Como organizador de eventos, quiero registrar y actualizar insumos con su unidad de medida, cantidad actual y proveedor, para mantener el control del stock.
+
+Criterios de aceptación:
+
+CA1: Desde la lista de insumos puedo actualizar nombre, proveedor, cantidad y unidad de medida.
+Los cambios se guardan en la base de datos y se reflejan inmediatamente.
+
+Prioridad: Alta  Puntos: 8
+
+HU-007 – Proyectar Consumo
+
+Descripción:
+Como organizador de eventos, quiero calcular automáticamente el consumo estimado de insumos según menú y cantidad de invitados, para anticipar necesidades.
+
+Criterios de aceptación:
+
+CA1: Al seleccionar un evento, el sistema muestra una lista de insumos requeridos según el menú asociado.
+
+Prioridad: Alta  Puntos: 8
+
+HU-008 – Generar y Enviar Alerta
+
+Descripción:
+Como encargado de cocina, quiero recibir una alerta cuando el stock de un insumo sea insuficiente para un evento dentro de 15 días, a fin de realizar el pedido a tiempo.
+
+Criterios de aceptación:
+
+CA1: Si falta stock para un evento en los próximos 15 días, el sistema genera una alerta con insumo, evento, faltante estimado y proveedor sugerido.
+
+Prioridad: Media  Puntos: 5
+
+HU-009 – Reporte de Compras Pendientes
+
+Descripción:
+Como encargado de cocina, quiero ver un reporte de órdenes de compra pendientes para priorizar y hacer seguimiento.
+
+Criterios de aceptación:
+
+CA1: El reporte muestra pedidos pendientes con insumo, proveedor, cantidad y fecha de solicitud.
+
+CA2: Puedo ordenar el listado por fecha o proveedor.
+
+CA3: Al seleccionar una orden, se muestra su detalle completo (renglones, eventos relacionados, comentarios).
+
+Prioridad: Media  Puntos: 5
+
+HU-010 – Ver Histórico de Compras Realizadas
+
+Descripción:
+Como organizador o encargado de cocina, quiero consultar el historial de compras para auditar el abastecimiento.
+
+Criterios de aceptación:
+
+CA1: El listado muestra proveedor, fecha, insumos, cantidades y costo total.
+
+CA2: Puedo exportar el reporte en formato CSV o Excel.
+
+Prioridad: Baja  Puntos: 3
