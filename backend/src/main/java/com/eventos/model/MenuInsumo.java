@@ -20,7 +20,6 @@ public class MenuInsumo {
     
     @ManyToOne
     @JoinColumn(name = "id_insumo", nullable = false)
-    @JsonIgnore
     private Insumo insumo;
     
     @Column(name = "cantidad_por_persona", nullable = false)
