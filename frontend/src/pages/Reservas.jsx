@@ -1,18 +1,22 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 
 const Reservas = () => {
   const navigate = useNavigate();
-  const [tabActiva, setTabActiva] = useState('lista');
+  const { user } = useAuth();
+  
+  const puedeEditarReservas = () => {
+    return user && (user.role === 'ADMINISTRADOR' || user.role === 'ORGANIZADOR_EVENTOS');
+  };
   const [eventos, setEventos] = useState([]);
   const [eventoSeleccionado, setEventoSeleccionado] = useState(null);
   
-  const [busqueda, setBusqueda] = useState({
+  const [filtros, setFiltros] = useState({
     cliente: '',
     fecha: ''
   });
-  const [resultadosBusqueda, setResultadosBusqueda] = useState([]);
 
   useEffect(() => {
     cargarEventos();
@@ -28,40 +32,18 @@ const Reservas = () => {
     }
   };
 
-  const handleBuscar = async () => {
-    try {
-      const response = await api.get('/eventos');
-      let resultados = response.data;
-
-      if (busqueda.cliente) {
-        resultados = resultados.filter(e => 
-          e.nombreCliente?.toLowerCase().includes(busqueda.cliente.toLowerCase())
-        );
-      }
-
-      if (busqueda.fecha) {
-        resultados = resultados.filter(e => e.fecha === busqueda.fecha);
-      }
-
-      setResultadosBusqueda(resultados);
-    } catch (error) {
-      console.error('Error buscando eventos:', error);
-    }
-  };
+  const eventosFiltrados = eventos.filter(evento => {
+    const coincideCliente = !filtros.cliente || 
+      evento.nombreCliente?.toLowerCase().includes(filtros.cliente.toLowerCase());
+    const coincideFecha = !filtros.fecha || evento.fecha === filtros.fecha;
+    return coincideCliente && coincideFecha;
+  });
 
   const handleModificar = () => {
     if (eventoSeleccionado) {
       navigate(`/eventos/editar/${eventoSeleccionado}`);
     } else {
       alert('Seleccione un evento para modificar');
-    }
-  };
-
-  const handleDetalles = () => {
-    if (resultadosBusqueda.length > 0 && resultadosBusqueda[0]) {
-      navigate(`/eventos/editar/${resultadosBusqueda[0].idEvento}`);
-    } else {
-      alert('No hay resultados para mostrar detalles');
     }
   };
 
@@ -110,43 +92,57 @@ const Reservas = () => {
         </div>
       </div>
 
-      {/* Tabs */}
-      <div style={{ display: 'flex', borderBottom: '2px solid #333', marginBottom: '30px' }}>
-        <button
-          onClick={() => setTabActiva('lista')}
+      {/* Filtros de Búsqueda */}
+      <div style={{ 
+        display: 'flex', 
+        gap: '15px', 
+        marginBottom: '20px',
+        maxWidth: '600px'
+      }}>
+        <input
+          type="text"
+          placeholder="Buscar por cliente"
+          value={filtros.cliente}
+          onChange={(e) => setFiltros({ ...filtros, cliente: e.target.value })}
           style={{
             flex: 1,
-            padding: '15px',
-            background: tabActiva === 'lista' ? '#f8f8f8' : '#fff',
-            border: 'none',
-            borderBottom: tabActiva === 'lista' ? '3px solid #5DADE2' : 'none',
-            fontSize: '16px',
-            cursor: 'pointer',
-            fontWeight: tabActiva === 'lista' ? 'bold' : 'normal'
+            padding: '10px',
+            border: '1px solid #ccc',
+            borderRadius: '4px',
+            fontSize: '14px'
           }}
-        >
-          Lista reservas
-        </button>
-        <button
-          onClick={() => setTabActiva('buscar')}
+        />
+        <input
+          type="date"
+          value={filtros.fecha}
+          onChange={(e) => setFiltros({ ...filtros, fecha: e.target.value })}
           style={{
-            flex: 1,
-            padding: '15px',
-            background: tabActiva === 'buscar' ? '#f8f8f8' : '#fff',
-            border: 'none',
-            borderBottom: tabActiva === 'buscar' ? '3px solid #5DADE2' : 'none',
-            fontSize: '16px',
-            cursor: 'pointer',
-            fontWeight: tabActiva === 'buscar' ? 'bold' : 'normal'
+            padding: '10px',
+            border: '1px solid #ccc',
+            borderRadius: '4px',
+            fontSize: '14px'
           }}
-        >
-          Buscar evento
-        </button>
+          placeholder="Fecha"
+        />
+        {(filtros.cliente || filtros.fecha) && (
+          <button
+            onClick={() => setFiltros({ cliente: '', fecha: '' })}
+            style={{
+              padding: '10px 20px',
+              background: '#f5f5f5',
+              border: '1px solid #ccc',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontSize: '14px'
+            }}
+          >
+            Limpiar
+          </button>
+        )}
       </div>
 
-      {/* Contenido de Lista */}
-      {tabActiva === 'lista' && (
-        <div>
+      {/* Tabla de Reservas */}
+      <div>
           <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '30px' }}>
             <thead>
               <tr style={{ background: '#5DADE2', color: '#fff' }}>
@@ -160,7 +156,7 @@ const Reservas = () => {
               </tr>
             </thead>
             <tbody>
-              {eventos.map((evento) => (
+              {eventosFiltrados.map((evento) => (
                 <tr key={evento.idEvento}>
                   <td style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'center' }}>
                     <input
@@ -192,7 +188,7 @@ const Reservas = () => {
                   </td>
                 </tr>
               ))}
-              {eventos.length === 0 && (
+              {eventosFiltrados.length === 0 && (
                 <tr>
                   <td colSpan="7" style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
                     No hay reservas registradas
@@ -215,136 +211,26 @@ const Reservas = () => {
                 cursor: 'pointer'
               }}
             >
-              Cancelar
+              Volver
             </button>
             <button
               onClick={handleModificar}
+              disabled={!puedeEditarReservas()}
+              title={!puedeEditarReservas() ? 'Acción no disponible para su perfil de usuario' : ''}
               style={{
-                background: '#5DADE2',
+                background: puedeEditarReservas() ? '#5DADE2' : '#ccc',
                 color: '#fff',
                 border: 'none',
                 padding: '12px 40px',
                 borderRadius: '5px',
                 fontSize: '16px',
-                cursor: 'pointer'
+                cursor: puedeEditarReservas() ? 'pointer' : 'not-allowed'
               }}
             >
               Modificar
             </button>
           </div>
         </div>
-      )}
-
-      {/* Contenido de Búsqueda */}
-      {tabActiva === 'buscar' && (
-        <div>
-          <div style={{ maxWidth: '400px', marginBottom: '30px' }}>
-            <input
-              type="text"
-              placeholder="Cliente"
-              value={busqueda.cliente}
-              onChange={(e) => setBusqueda({ ...busqueda, cliente: e.target.value })}
-              style={{
-                width: '100%',
-                padding: '10px',
-                marginBottom: '15px',
-                border: '1px solid #ccc',
-                borderRadius: '4px',
-                fontSize: '14px'
-              }}
-            />
-
-            <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <label style={{ fontSize: '14px', minWidth: '100px' }}>Fecha Evento</label>
-              <input
-                type="date"
-                value={busqueda.fecha}
-                onChange={(e) => setBusqueda({ ...busqueda, fecha: e.target.value })}
-                style={{
-                  flex: 1,
-                  padding: '10px',
-                  border: '1px solid #ccc',
-                  borderRadius: '4px',
-                  fontSize: '14px'
-                }}
-              />
-            </div>
-
-            <button
-              onClick={handleBuscar}
-              style={{
-                background: '#5DADE2',
-                color: '#fff',
-                border: 'none',
-                padding: '12px 40px',
-                borderRadius: '5px',
-                fontSize: '16px',
-                cursor: 'pointer',
-                display: 'block',
-                margin: '0 auto'
-              }}
-            >
-              Buscar
-            </button>
-          </div>
-
-          {resultadosBusqueda.length > 0 && (
-            <>
-              <table style={{ width: '100%', maxWidth: '600px', borderCollapse: 'collapse', marginBottom: '30px' }}>
-                <thead>
-                  <tr style={{ background: '#5DADE2', color: '#fff' }}>
-                    <th style={{ padding: '12px', border: '1px solid #333' }}>Cliente</th>
-                    <th style={{ padding: '12px', border: '1px solid #333' }}>Fecha</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {resultadosBusqueda.map((evento) => (
-                    <tr key={evento.idEvento}>
-                      <td style={{ padding: '12px', border: '1px solid #ddd' }}>
-                        {evento.nombreCliente}
-                      </td>
-                      <td style={{ padding: '12px', border: '1px solid #ddd' }}>
-                        {formatearFecha(evento.fecha)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-
-              <div style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
-                <button
-                  onClick={() => navigate('/')}
-                  style={{
-                    background: '#fff',
-                    color: '#333',
-                    border: '2px solid #ccc',
-                    padding: '12px 40px',
-                    borderRadius: '5px',
-                    fontSize: '16px',
-                    cursor: 'pointer'
-                  }}
-                >
-                  Cancelar
-                </button>
-                <button
-                  onClick={handleDetalles}
-                  style={{
-                    background: '#5DADE2',
-                    color: '#fff',
-                    border: 'none',
-                    padding: '12px 40px',
-                    borderRadius: '5px',
-                    fontSize: '16px',
-                    cursor: 'pointer'
-                  }}
-                >
-                  Detalles
-                </button>
-              </div>
-            </>
-          )}
-        </div>
-      )}
     </div>
   );
 };
