@@ -509,7 +509,7 @@ const ManejarStock = () => {
           }}>
             <div style={{ flex: 1 }}>
               <label style={{ fontSize: '14px', display: 'block', marginBottom: '5px' }}>
-                Seleccionar Evento
+                Fecha del Evento
               </label>
               <select
                 value={eventoSeleccionado}
@@ -526,7 +526,7 @@ const ManejarStock = () => {
                 <option value="">dd/mm/aaaa</option>
                 {eventos.map(evento => (
                   <option key={evento.idEvento} value={evento.idEvento}>
-                    {formatearFecha(evento.fecha)} - {evento.nombreCliente}
+                    {formatearFecha(evento.fecha)}
                   </option>
                 ))}
               </select>
