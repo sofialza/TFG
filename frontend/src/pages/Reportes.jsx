@@ -7,6 +7,7 @@ const Reportes = () => {
   const [tabActiva, setTabActiva] = useState('pendientes');
   const [comprasPendientes, setComprasPendientes] = useState([]);
   const [historico, setHistorico] = useState([]);
+  const [edicionPendientes, setEdicionPendientes] = useState({});
 
   useEffect(() => {
     cargarDatos();
@@ -14,14 +15,23 @@ const Reportes = () => {
 
   const cargarDatos = async () => {
     try {
-      const [pendientesRes, todasRes] = await Promise.all([
+      const [pendientesRes, historicoRes] = await Promise.all([
         api.get('/ordenes-compra/pendientes'),
-        api.get('/ordenes-compra')
+        api.get('/ordenes-compra/historico')
       ]);
       
       setComprasPendientes(pendientesRes.data || []);
-      const completadas = todasRes.data.filter(o => o.estado === 'APROBADA') || [];
-      setHistorico(completadas);
+      setHistorico(historicoRes.data || []);
+      
+      const ediciones = {};
+      pendientesRes.data.forEach(orden => {
+        if (orden.detalles) {
+          orden.detalles.forEach(detalle => {
+            ediciones[detalle.idOcDet] = detalle.cantidadRecibida || detalle.cantidadPedida;
+          });
+        }
+      });
+      setEdicionPendientes(ediciones);
     } catch (error) {
       console.error('Error cargando reportes:', error);
     }
@@ -36,25 +46,73 @@ const Reportes = () => {
     });
   };
 
+  const handleCambiarCantidad = (idDetalle, cantidad) => {
+    setEdicionPendientes(prev => ({
+      ...prev,
+      [idDetalle]: cantidad
+    }));
+  };
+
+  const handleConfirmarRecepcion = async (idOrden) => {
+    const orden = comprasPendientes.find(o => o.idOc === idOrden);
+    if (!orden) return;
+
+    try {
+      const detalles = orden.detalles.map(detalle => ({
+        idDetalle: detalle.idOcDet,
+        cantidadRecibida: parseFloat(edicionPendientes[detalle.idOcDet] || detalle.cantidadPedida)
+      }));
+
+      const confirmacion = {
+        fechaRecepcion: new Date().toISOString().split('T')[0],
+        detalles: detalles
+      };
+
+      await api.put(`/ordenes-compra/${idOrden}/confirmar-recepcion`, confirmacion);
+      alert('Recepción confirmada exitosamente');
+      cargarDatos();
+    } catch (error) {
+      console.error('Error confirmando recepción:', error);
+      alert('Error al confirmar la recepción');
+    }
+  };
+
   const exportarCSV = () => {
     if (historico.length === 0) {
       alert('No hay datos para exportar');
       return;
     }
 
-    const headers = ['ID', 'Proveedor', 'Fecha de compra', 'Insumos', 'Cantidad', 'Costo total'];
-    const rows = historico.map(orden => [
-      orden.idOrdenCompra || '',
-      orden.proveedor?.nombre || '[proveedor]',
-      formatearFecha(orden.fechaSolicitud),
-      '[Insumos]',
-      '[xx]',
-      '[xx.xx]'
-    ]);
+    const headers = [
+      'ID Orden',
+      'Insumo',
+      'Cantidad Pedida',
+      'Cantidad Recibida',
+      'Proveedor',
+      'Fecha Pedido',
+      'Fecha Recepción'
+    ];
+
+    const rows = [];
+    historico.forEach(orden => {
+      if (orden.detalles && orden.detalles.length > 0) {
+        orden.detalles.forEach(detalle => {
+          rows.push([
+            orden.idOc || '',
+            detalle.insumo?.nombre || '',
+            detalle.cantidadPedida || 0,
+            detalle.cantidadRecibida || 0,
+            orden.proveedor?.nombre || '',
+            formatearFecha(orden.fechaEmision),
+            formatearFecha(orden.fechaRecepcion)
+          ]);
+        });
+      }
+    });
 
     const csvContent = [
       headers.join(','),
-      ...rows.map(row => row.join(','))
+      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
     ].join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -144,60 +202,82 @@ const Reportes = () => {
             fontWeight: tabActiva === 'historico' ? 'bold' : 'normal'
           }}
         >
-          Historico
+          Histórico de Compras
         </button>
       </div>
 
       {/* Contenido Compras Pendientes */}
       {tabActiva === 'pendientes' && (
         <div>
-          <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '30px' }}>
-            <thead>
-              <tr style={{ background: '#5DADE2', color: '#fff' }}>
-                <th style={{ padding: '12px', border: '1px solid #333' }}>ID</th>
-                <th style={{ padding: '12px', border: '1px solid #333' }}>Insumo</th>
-                <th style={{ padding: '12px', border: '1px solid #333' }}>Proveedor</th>
-                <th style={{ padding: '12px', border: '1px solid #333' }}>Cantidad</th>
-                <th style={{ padding: '12px', border: '1px solid #333' }}>Fecha Solicitad</th>
-                <th style={{ padding: '12px', border: '1px solid #333' }}>Fecha Necesidad</th>
-                <th style={{ padding: '12px', border: '1px solid #333' }}>Estado</th>
-              </tr>
-            </thead>
-            <tbody>
-              {comprasPendientes.map((orden) => (
-                <tr key={orden.idOrdenCompra}>
-                  <td style={{ padding: '12px', border: '1px solid #ddd' }}>
-                    {orden.idOrdenCompra}
-                  </td>
-                  <td style={{ padding: '12px', border: '1px solid #ddd' }}>
-                    [Insumo]
-                  </td>
-                  <td style={{ padding: '12px', border: '1px solid #ddd' }}>
-                    {orden.proveedor?.nombre || '[proveedor]'}
-                  </td>
-                  <td style={{ padding: '12px', border: '1px solid #ddd' }}>
-                    [xxxx]
-                  </td>
-                  <td style={{ padding: '12px', border: '1px solid #ddd' }}>
-                    {formatearFecha(orden.fechaSolicitud)}
-                  </td>
-                  <td style={{ padding: '12px', border: '1px solid #ddd' }}>
-                    {formatearFecha(orden.fechaNecesidad)}
-                  </td>
-                  <td style={{ padding: '12px', border: '1px solid #ddd' }}>
-                    {orden.estado || '[estado]'}
-                  </td>
-                </tr>
-              ))}
-              {comprasPendientes.length === 0 && (
-                <tr>
-                  <td colSpan="7" style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
-                    No hay compras pendientes
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+          {comprasPendientes.length > 0 ? (
+            comprasPendientes.map((orden) => (
+              <div key={orden.idOc} style={{ marginBottom: '40px' }}>
+                <h3 style={{ marginBottom: '10px' }}>
+                  Orden #{orden.idOc} - {orden.proveedor?.nombre} - {formatearFecha(orden.fechaEmision)}
+                </h3>
+                <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '20px' }}>
+                  <thead>
+                    <tr style={{ background: '#5DADE2', color: '#fff' }}>
+                      <th style={{ padding: '12px', border: '1px solid #333' }}>Insumo</th>
+                      <th style={{ padding: '12px', border: '1px solid #333' }}>Cant. Solicitada</th>
+                      <th style={{ padding: '12px', border: '1px solid #333' }}>Cant. Recibida</th>
+                      <th style={{ padding: '12px', border: '1px solid #333' }}>Fecha Necesidad</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {orden.detalles && orden.detalles.map((detalle) => (
+                      <tr key={detalle.idOcDet}>
+                        <td style={{ padding: '12px', border: '1px solid #ddd' }}>
+                          {detalle.insumo?.nombre}
+                        </td>
+                        <td style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'center' }}>
+                          {detalle.cantidadPedida} {detalle.insumo?.unidadMedida}
+                        </td>
+                        <td style={{ padding: '12px', border: '1px solid #ddd' }}>
+                          <input
+                            type="number"
+                            step="0.01"
+                            value={edicionPendientes[detalle.idOcDet] || detalle.cantidadPedida}
+                            onChange={(e) => handleCambiarCantidad(detalle.idOcDet, e.target.value)}
+                            style={{
+                              width: '100%',
+                              padding: '8px',
+                              border: '1px solid #ccc',
+                              borderRadius: '4px',
+                              fontSize: '14px'
+                            }}
+                          />
+                        </td>
+                        <td style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'center' }}>
+                          {formatearFecha(orden.fechaNecesidad)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <div style={{ textAlign: 'right' }}>
+                  <button
+                    onClick={() => handleConfirmarRecepcion(orden.idOc)}
+                    style={{
+                      background: '#27AE60',
+                      color: '#fff',
+                      border: 'none',
+                      padding: '10px 30px',
+                      borderRadius: '5px',
+                      fontSize: '16px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Confirmar Recepción
+                  </button>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div style={{ padding: '40px', textAlign: 'center', color: '#666', fontSize: '16px' }}>
+              No hay compras pendientes
+            </div>
+          )}
         </div>
       )}
 
@@ -207,40 +287,47 @@ const Reportes = () => {
           <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '30px' }}>
             <thead>
               <tr style={{ background: '#5DADE2', color: '#fff' }}>
-                <th style={{ padding: '12px', border: '1px solid #333' }}>ID</th>
+                <th style={{ padding: '12px', border: '1px solid #333' }}>ID Orden</th>
+                <th style={{ padding: '12px', border: '1px solid #333' }}>Insumo</th>
+                <th style={{ padding: '12px', border: '1px solid #333' }}>Cant. Pedida</th>
+                <th style={{ padding: '12px', border: '1px solid #333' }}>Cant. Recibida</th>
                 <th style={{ padding: '12px', border: '1px solid #333' }}>Proveedor</th>
-                <th style={{ padding: '12px', border: '1px solid #333' }}>Fecha de compra</th>
-                <th style={{ padding: '12px', border: '1px solid #333' }}>Insumos</th>
-                <th style={{ padding: '12px', border: '1px solid #333' }}>Cantidad</th>
-                <th style={{ padding: '12px', border: '1px solid #333' }}>Costo total</th>
+                <th style={{ padding: '12px', border: '1px solid #333' }}>Fecha Pedido</th>
+                <th style={{ padding: '12px', border: '1px solid #333' }}>Fecha Recepción</th>
               </tr>
             </thead>
             <tbody>
-              {historico.map((orden) => (
-                <tr key={orden.idOrdenCompra}>
-                  <td style={{ padding: '12px', border: '1px solid #ddd' }}>
-                    {orden.idOrdenCompra}
-                  </td>
-                  <td style={{ padding: '12px', border: '1px solid #ddd' }}>
-                    {orden.proveedor?.nombre || '[proveedor]'}
-                  </td>
-                  <td style={{ padding: '12px', border: '1px solid #ddd' }}>
-                    {formatearFecha(orden.fechaSolicitud)}
-                  </td>
-                  <td style={{ padding: '12px', border: '1px solid #ddd' }}>
-                    [Insumos]
-                  </td>
-                  <td style={{ padding: '12px', border: '1px solid #ddd' }}>
-                    [xx]
-                  </td>
-                  <td style={{ padding: '12px', border: '1px solid #ddd' }}>
-                    [xx.xx]
-                  </td>
-                </tr>
-              ))}
-              {historico.length === 0 && (
+              {historico.length > 0 ? (
+                historico.map((orden) => (
+                  orden.detalles && orden.detalles.map((detalle) => (
+                    <tr key={`${orden.idOc}-${detalle.idOcDet}`}>
+                      <td style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'center' }}>
+                        {orden.idOc}
+                      </td>
+                      <td style={{ padding: '12px', border: '1px solid #ddd' }}>
+                        {detalle.insumo?.nombre}
+                      </td>
+                      <td style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'center' }}>
+                        {detalle.cantidadPedida} {detalle.insumo?.unidadMedida}
+                      </td>
+                      <td style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'center' }}>
+                        {detalle.cantidadRecibida} {detalle.insumo?.unidadMedida}
+                      </td>
+                      <td style={{ padding: '12px', border: '1px solid #ddd' }}>
+                        {orden.proveedor?.nombre}
+                      </td>
+                      <td style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'center' }}>
+                        {formatearFecha(orden.fechaEmision)}
+                      </td>
+                      <td style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'center' }}>
+                        {formatearFecha(orden.fechaRecepcion)}
+                      </td>
+                    </tr>
+                  ))
+                ))
+              ) : (
                 <tr>
-                  <td colSpan="6" style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
+                  <td colSpan="7" style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
                     No hay histórico de compras
                   </td>
                 </tr>

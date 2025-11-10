@@ -19,11 +19,19 @@ public class OrdenCompra {
     @JoinColumn(name = "id_proveedor", nullable = false)
     private Proveedor proveedor;
     
+    @ManyToOne
+    @JoinColumn(name = "id_evento")
+    @JsonIgnore
+    private Evento evento;
+    
     @Column(name = "fecha_emision", nullable = false)
     private LocalDate fechaEmision;
     
     @Column(name = "fecha_necesidad")
     private LocalDate fechaNecesidad;
+    
+    @Column(name = "fecha_recepcion")
+    private LocalDate fechaRecepcion;
     
     @Enumerated(EnumType.STRING)
     private Estado estado;
@@ -35,8 +43,12 @@ public class OrdenCompra {
     
     public enum Estado {
         PENDIENTE,
+        RECIBIDA,
+        PARCIAL,
+        CANCELADA,
+        @Deprecated
         PROCESANDO,
-        COMPLETADA,
-        CANCELADA
+        @Deprecated
+        COMPLETADA
     }
 }

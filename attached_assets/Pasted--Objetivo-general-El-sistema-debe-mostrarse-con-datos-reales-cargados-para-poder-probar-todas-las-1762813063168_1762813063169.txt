@@ -1,0 +1,106 @@
+🎯 Objetivo general
+El sistema debe mostrarse con datos reales cargados para poder probar todas las funcionalidades:
+Proyección de menús (Simular pedido)
+
+
+Visualización de reportes
+
+
+Actualización de stock
+
+
+El usuario debe poder ver, editar y comprobar cómo los menús, insumos y eventos se relacionan entre sí de forma visible en pantalla.
+
+🧩 Datos requeridos en la base
+Debe haber menús cargados (por ejemplo: Entrada fría, Menú principal, Mesa dulce).
+
+
+Cada menú debe tener insumos asociados (por ejemplo, “Harina 000”, “Azúcar”, “Queso crema”).
+
+
+Deben existir eventos de ejemplo ya creados, asociados a menús reales.
+
+
+Los eventos deben aparecer en el selector de eventos (dropdown) dentro de la pestaña Simular pedido.
+
+
+Ejemplo:
+
+
+María González – 14/11/2025
+
+
+Pedro Martínez – 19/11/2025
+
+
+Empresa Tech SA – 24/11/2025
+
+
+Cada evento debe incluir menús vinculados con sus insumos para que la simulación pueda calcular las cantidades correctamente.
+
+
+Debe haber reportes disponibles con esos mismos datos para poder ver información consolidada.
+
+
+
+🧭 Pantalla: “Manejar Stock”
+🔹 Pestaña Stock Actual
+Se debe mostrar una tabla completa con los insumos disponibles.
+
+
+Las columnas son:
+
+
+| Nombre del Menú | Nombre del Insumo | Cant. x Persona | Stock Actual | Nombre del Proveedor | Fecha de actualización |
+El usuario debe poder editar directamente en la tabla:
+
+
+La cantidad de stock actual.
+
+
+La fecha de última actualización.
+
+
+Al finalizar, debe poder presionar el botón “Actualizar” para guardar los cambios.
+
+
+El botón “Cancelar” vuelve al Dashboard.
+
+
+
+🔹 Pestaña Simular Pedido
+En la parte superior debe haber un selector de eventos (dropdown).
+
+
+Este selector debe mostrar los eventos cargados con el formato:
+ Cliente – Fecha del evento (dd/mm/aaaa)
+ Ejemplo:
+
+ María González – 14/11/2025
+Pedro Martínez – 19/11/2025
+Empresa Tech SA – 24/11/2025
+
+
+Cuando se selecciona un evento, la tabla de simulación debe mostrar los insumos relacionados con los menús de ese evento y calcular:
+
+
+Cantidad actual de stock.
+
+
+Cantidad total necesaria para el evento.
+
+
+Diferencia (faltante o excedente).
+
+
+La tabla debe incluir estas columnas:
+
+
+| Nombre del Menú | Nombre del Insumo | Cant. x Persona | Cantidad Actual | Cantidad Total para el Evento | Proveedor | Cantidad Pedido |
+El botón “Simular pedido” ejecuta la proyección.
+
+
+El botón “Exportar CSV” permite descargar la tabla visible.
+
+
+El botón “Salir” vuelve al Dashboard principal

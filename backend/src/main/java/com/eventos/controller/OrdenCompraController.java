@@ -61,4 +61,41 @@ public class OrdenCompraController {
         ordenCompraService.eliminarOrdenCompra(id);
         return ResponseEntity.noContent().build();
     }
+    
+    @PostMapping("/generar-desde-proyeccion")
+    public ResponseEntity<OrdenCompra> generarDesdeProyeccion(@RequestBody Map<String, Object> request) {
+        try {
+            Long idEvento = ((Number) request.get("idEvento")).longValue();
+            List<Map<String, Object>> items = (List<Map<String, Object>>) request.get("items");
+            
+            OrdenCompra ordenGenerada = ordenCompraService.generarDesdeProyeccion(idEvento, items);
+            return new ResponseEntity<>(ordenGenerada, HttpStatus.CREATED);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+    
+    @GetMapping("/historico")
+    public ResponseEntity<List<OrdenCompra>> obtenerHistorico() {
+        List<OrdenCompra> historico = ordenCompraService.obtenerHistorico();
+        return ResponseEntity.ok(historico);
+    }
+    
+    @PutMapping("/{id}/confirmar-recepcion")
+    public ResponseEntity<OrdenCompra> confirmarRecepcion(
+            @PathVariable Long id,
+            @RequestBody Map<String, Object> confirmacion) {
+        try {
+            OrdenCompra ordenActualizada = ordenCompraService.confirmarRecepcion(id, confirmacion);
+            return ResponseEntity.ok(ordenActualizada);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+    
+    @PostMapping("/auto-confirmar")
+    public ResponseEntity<Void> autoConfirmarPendientes() {
+        ordenCompraService.autoConfirmarOrdenesPendientes();
+        return ResponseEntity.ok().build();
+    }
 }
