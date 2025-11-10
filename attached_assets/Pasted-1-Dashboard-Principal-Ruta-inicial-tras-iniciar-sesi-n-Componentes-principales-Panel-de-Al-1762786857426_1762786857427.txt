@@ -1,0 +1,165 @@
+1️⃣ Dashboard Principal
+
+📍 Ruta inicial tras iniciar sesión.
+
+Componentes principales:
+
+Panel de Alertas de Stock (con tabla de eventos próximos).
+
+Botones:
+
+🟦 Nuevo Evento
+
+🟦 Manejar Stock
+
+🟦 Reservas
+
+🟦 Reportes
+
+🔘 Salir
+
+Navegación:
+
+👉 Nuevo Evento → Pantalla Crear/Modificar Evento
+
+👉 Manejar Stock → Pantalla Stock Actual / Simular Pedido
+
+👉 Reservas → Pantalla Listado de Reservas y Búsqueda
+
+👉 Reportes → Pantalla Reportes (Compras Pendientes / Histórico)
+
+👉 Salir → Cierra sesión y vuelve a Login
+
+Condición especial:
+
+Si hay alertas activas, se muestra la tabla con eventos próximos.
+
+Botón “Actualizar Stock” redirige a Manejar Stock.
+
+2️⃣ Crear / Modificar Evento
+
+📍 Acceso: desde Dashboard → “Nuevo Evento” o desde Reservas → “Editar”
+
+Contenido:
+
+Formulario en dos columnas:
+
+Datos del evento (cliente, fecha, invitados, menú, extras con checkboxes).
+
+Botones Guardar / Cancelar.
+
+Navegación:
+
+🔙 Cancelar → vuelve al Dashboard Principal.
+
+💾 Guardar → crea/modifica evento → vuelve al Listado de Reservas.
+
+3️⃣ Reservas
+
+📍 Acceso: desde Dashboard → “Reservas”
+
+Contenido:
+
+Lista completa de reservas con filtros integrados:
+
+Buscar por nombre del cliente o fecha.
+
+Mostrar resultados directamente en la tabla principal (sin vista aparte).
+
+Acciones:
+
+Ver detalles
+
+Editar → lleva a Crear/Modificar Evento
+
+Cancelar → elimina la reserva (confirmación modal)
+
+Navegación:
+
+🔙 Volver → Dashboard
+
+✏️ Editar → Crear/Modificar Evento
+
+❌ Cancelar Reserva → Actualiza lista y permanece en pantalla
+
+4️⃣ Manejar Stock
+
+📍 Acceso: desde Dashboard → “Manejar Stock” o desde Alertas (“Actualizar Stock”)
+
+Tabs:
+
+Stock Actual
+
+Lista de insumos con cantidades actuales, unidad de medida y proveedor.
+
+Botón Editar Stock (solo roles con permiso).
+
+Simular Pedido
+
+Campo Seleccionar Evento (fecha → calendario desplegable).
+
+Tabla generada automáticamente con:
+
+Menú, insumo, cantidad actual, cantidad total requerida, proveedor, cantidad a pedir.
+
+Botones:
+
+Simular pedido (calcula faltante).
+
+Exportar CSV.
+
+Salir (regresa al Dashboard).
+
+5️⃣ Reportes
+
+📍 Acceso: desde Dashboard → “Reportes”
+
+Tabs:
+
+Compras Pendientes
+
+Listado consolidado de órdenes por proveedor o insumo.
+
+Permite ordenar por fecha o proveedor.
+
+Acceso al detalle de orden (eventos relacionados).
+
+Histórico de Compras
+
+Listado de compras realizadas (fecha, proveedor, total).
+
+Botón Exportar CSV/Excel.
+
+Navegación:
+
+🔙 Volver → Dashboard
+
+6️⃣ Pantalla de Login (opcional para demo)
+
+📍 Ruta inicial del sistema.
+
+Contenido:
+
+Email, contraseña y botón “Ingresar”.
+
+Según el rol, redirige al Dashboard con permisos y botones habilitados/deshabilitados.
+
+🔄 Resumen visual (flujo simplificado)
+[Login] 
+   ↓
+[Dashboard Principal]
+ ├──→ [Crear / Modificar Evento]
+ │        └──→ [Reservas]
+ │
+ ├──→ [Reservas]
+ │        └──→ [Crear / Modificar Evento]
+ │
+ ├──→ [Manejar Stock]
+ │        ├──→ [Stock Actual]
+ │        └──→ [Simular Pedido]
+ │
+ ├──→ [Reportes]
+ │        ├──→ [Compras Pendientes]
+ │        └──→ [Histórico de Compras]
+ │
+ └──→ [Salir] → [Login]

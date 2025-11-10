@@ -39,7 +39,7 @@ const DashboardPrincipal = () => {
     
     const permisos = {
       'ADMINISTRADOR': ['eventos', 'stock', 'reservas', 'reportes'],
-      'ENCARGADA_COCINA': ['stock', 'reportes'],
+      'ENCARGADA_COCINA': ['stock', 'reservas', 'reportes'],
       'ORGANIZADOR_EVENTOS': ['eventos', 'reservas', 'reportes']
     };
 
