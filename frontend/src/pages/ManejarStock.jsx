@@ -116,7 +116,24 @@ const ManejarStock = () => {
         alignItems: 'center',
         marginBottom: '30px'
       }}>
-        <h1 style={{ fontSize: '24px', margin: 0 }}>Manejar Stock</h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          <h1 style={{ fontSize: '24px', margin: 0 }}>Manejar Stock</h1>
+          <button
+            onClick={() => navigate('/')}
+            style={{
+              background: '#5DADE2',
+              color: '#fff',
+              border: 'none',
+              padding: '8px 16px',
+              borderRadius: '4px',
+              fontSize: '14px',
+              cursor: 'pointer',
+              fontWeight: 'bold'
+            }}
+          >
+            ← Volver al Dashboard
+          </button>
+        </div>
         <div style={{ display: 'flex', gap: '10px' }}>
           <div style={{
             width: '20px',
