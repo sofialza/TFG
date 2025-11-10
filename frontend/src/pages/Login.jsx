@@ -9,9 +9,9 @@ function Login() {
   const { login } = useAuth();
 
   const roles = [
-    { value: 'administrador', label: 'Administrador' },
-    { value: 'encargada_cocina', label: 'Encargada de Cocina' },
-    { value: 'organizador_eventos', label: 'Organizador de Eventos' },
+    { value: 'ADMINISTRADOR', label: 'Administrador' },
+    { value: 'ENCARGADA_COCINA', label: 'Encargada de Cocina' },
+    { value: 'ORGANIZADOR_EVENTOS', label: 'Organizador de Eventos' },
   ];
 
   const handleSubmit = (e) => {
