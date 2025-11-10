@@ -2,6 +2,7 @@ package com.eventos.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.List;
 
 @Data
@@ -25,5 +26,6 @@ public class Menu {
     private String torta;
     
     @OneToMany(mappedBy = "menu", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<MenuInsumo> menuInsumos;
 }

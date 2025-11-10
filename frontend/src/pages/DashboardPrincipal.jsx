@@ -5,7 +5,7 @@ import api from '../services/api';
 
 const DashboardPrincipal = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const [proximosEventos, setProximosEventos] = useState([]);
   const [alertasStock, setAlertasStock] = useState([]);
 
@@ -77,26 +77,48 @@ const DashboardPrincipal = () => {
         }}>
           SAVEUR EVENTOS
         </h1>
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <div style={{
-            width: '20px',
-            height: '20px',
-            borderRadius: '50%',
-            border: '2px solid #333'
-          }}></div>
-          <div style={{
-            width: '20px',
-            height: '20px',
-            borderRadius: '50%',
-            border: '2px solid #333'
-          }}></div>
-          <div style={{
-            width: '20px',
-            height: '20px',
-            borderRadius: '50%',
-            border: '2px solid #5DADE2',
-            background: '#5DADE2'
-          }}></div>
+        <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ fontSize: '14px', color: '#666' }}>
+              {user?.username} ({user?.role === 'ADMINISTRADOR' ? 'Administrador' : user?.role === 'ENCARGADA_COCINA' ? 'Encargada de Cocina' : 'Organizador de Eventos'})
+            </span>
+            <button
+              onClick={logout}
+              style={{
+                background: '#e74c3c',
+                color: '#fff',
+                border: 'none',
+                padding: '8px 20px',
+                borderRadius: '5px',
+                fontSize: '14px',
+                cursor: 'pointer',
+                fontWeight: 'bold'
+              }}
+            >
+              Salir
+            </button>
+          </div>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <div style={{
+              width: '20px',
+              height: '20px',
+              borderRadius: '50%',
+              border: '2px solid #333'
+            }}></div>
+            <div style={{
+              width: '20px',
+              height: '20px',
+              borderRadius: '50%',
+              border: '2px solid #333'
+            }}></div>
+            <div style={{
+              width: '20px',
+              height: '20px',
+              borderRadius: '50%',
+              border: '2px solid #5DADE2',
+              background: '#5DADE2'
+            }}></div>
+          </div>
         </div>
       </div>
 

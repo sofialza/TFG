@@ -2,6 +2,7 @@ package com.eventos.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.List;
 
 @Data
@@ -21,5 +22,6 @@ public class Proveedor {
     private Double precio;
     
     @OneToMany(mappedBy = "proveedor", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<ProvInsumo> provInsumos;
 }

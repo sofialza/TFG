@@ -23,8 +23,8 @@
 /home/runner/workspace/backend/src/main/java/com/eventos/repository/OrdenCompraRepository.java
 /home/runner/workspace/backend/src/main/java/com/eventos/repository/ProveedorRepository.java
 /home/runner/workspace/backend/src/main/java/com/eventos/model/OrdenCompra.java
-/home/runner/workspace/backend/src/main/java/com/eventos/model/Proveedor.java
 /home/runner/workspace/backend/src/main/java/com/eventos/model/Menu.java
+/home/runner/workspace/backend/src/main/java/com/eventos/model/Proveedor.java
 /home/runner/workspace/backend/src/main/java/com/eventos/repository/ExtraRepository.java
 /home/runner/workspace/backend/src/main/java/com/eventos/model/OrdenCompraDetalle.java
 /home/runner/workspace/backend/src/main/java/com/eventos/controller/OrdenCompraController.java

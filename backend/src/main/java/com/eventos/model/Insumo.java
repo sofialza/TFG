@@ -2,6 +2,7 @@ package com.eventos.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -27,8 +28,10 @@ public class Insumo {
     private LocalDateTime fechaActualizacion = LocalDateTime.now();
     
     @OneToMany(mappedBy = "insumo", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<MenuInsumo> menuInsumos;
     
     @OneToMany(mappedBy = "insumo", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<ProvInsumo> provInsumos;
 }

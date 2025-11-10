@@ -124,17 +124,19 @@ cd frontend && npm run dev
 ```
 
 ## Estado Actual - Sistema Completo ✅
-- ✅ Backend Java completamente funcional
-- ✅ Base de datos PostgreSQL configurada
+- ✅ Backend Java completamente funcional con @JsonIgnore en relaciones bidireccionales
+- ✅ Base de datos PostgreSQL configurada con datos de prueba
 - ✅ API REST completa con 8 controllers
-- ✅ Frontend React con todas las funcionalidades principales
+- ✅ Proxy de Vite configurado para conectar frontend con backend
+- ✅ Dashboard Principal "SAVEUR EVENTOS" unificado para todos los roles
+- ✅ Sistema de permisos visual: botones grises con cursor:not-allowed y tooltips informativos
+- ✅ Funcionalidad de logout implementada con información del usuario
+- ✅ 6 vistas principales: DashboardPrincipal, CrearEvento, ModificarEvento, Reservas, ManejarStock, Reportes
 - ✅ Sistema de alertas de stock bajo funcionando
 - ✅ Proyección de consumo automática operativa
-- ✅ CRUD completo para eventos, menús, insumos y órdenes
 - ✅ Sistema de autenticación con login y protección de rutas
-- ✅ 3 dashboards diferenciados por rol (Administrador, Encargada de Cocina, Organizador)
-- ✅ README completo en español argentino
-- ✅ Ambos workflows (frontend/backend) corriendo sin errores
+- ✅ Componentes antiguos eliminados (DashboardAdministrador, DashboardEncargadaCocina, etc.)
+- ✅ Ambos workflows (frontend/backend) corriendo sin errores de serialización
 
 ## Próximos Pasos (Opcional)
 1. Implementar autenticación JWT con backend (actualmente es solo frontend)
