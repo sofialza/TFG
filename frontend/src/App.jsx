@@ -1,14 +1,12 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import Navbar from './components/Navbar';
 import Login from './pages/Login';
-import DashboardAdministrador from './pages/DashboardAdministrador';
-import DashboardEncargadaCocina from './pages/DashboardEncargadaCocina';
-import DashboardOrganizador from './pages/DashboardOrganizador';
-import Eventos from './pages/Eventos';
-import Menus from './pages/Menus';
-import Insumos from './pages/Insumos';
-import OrdenesCompra from './pages/OrdenesCompra';
+import DashboardPrincipal from './pages/DashboardPrincipal';
+import CrearEvento from './pages/CrearEvento';
+import ModificarEvento from './pages/ModificarEvento';
+import Reservas from './pages/Reservas';
+import ManejarStock from './pages/ManejarStock';
+import Reportes from './pages/Reportes';
 import './App.css';
 
 function ProtectedRoute({ children }) {
@@ -25,68 +23,58 @@ function ProtectedRoute({ children }) {
   return children;
 }
 
-function DashboardRouter() {
-  const { user } = useAuth();
-  
-  if (!user) return null;
-  
-  switch (user.role) {
-    case 'administrador':
-      return <DashboardAdministrador />;
-    case 'encargada_cocina':
-      return <DashboardEncargadaCocina />;
-    case 'organizador_eventos':
-      return <DashboardOrganizador />;
-    default:
-      return <DashboardAdministrador />;
-  }
-}
-
 function AppContent() {
   const { user } = useAuth();
   
   return (
     <div className="App">
-      {user && <Navbar />}
       <Routes>
         <Route path="/login" element={user ? <Navigate to="/" replace /> : <Login />} />
         <Route
           path="/"
           element={
             <ProtectedRoute>
-              <DashboardRouter />
+              <DashboardPrincipal />
             </ProtectedRoute>
           }
         />
         <Route
-          path="/eventos"
+          path="/eventos/nuevo"
           element={
             <ProtectedRoute>
-              <Eventos />
+              <CrearEvento />
             </ProtectedRoute>
           }
         />
         <Route
-          path="/menus"
+          path="/eventos/editar/:id"
           element={
             <ProtectedRoute>
-              <Menus />
+              <ModificarEvento />
             </ProtectedRoute>
           }
         />
         <Route
-          path="/insumos"
+          path="/reservas"
           element={
             <ProtectedRoute>
-              <Insumos />
+              <Reservas />
             </ProtectedRoute>
           }
         />
         <Route
-          path="/ordenes-compra"
+          path="/stock"
           element={
             <ProtectedRoute>
-              <OrdenesCompra />
+              <ManejarStock />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/reportes"
+          element={
+            <ProtectedRoute>
+              <Reportes />
             </ProtectedRoute>
           }
         />
