@@ -2,6 +2,7 @@ package com.eventos.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -30,6 +31,7 @@ public class OrdenCompra {
     private Double total;
     
     @OneToMany(mappedBy = "ordenCompra", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<OrdenCompraDetalle> detalles;
     
     public enum Estado {

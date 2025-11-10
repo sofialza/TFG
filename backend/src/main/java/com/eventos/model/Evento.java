@@ -2,6 +2,7 @@ package com.eventos.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -36,5 +37,6 @@ public class Evento {
     private String mailCliente;
     
     @OneToMany(mappedBy = "evento", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<EventoExtra> eventoExtras;
 }
