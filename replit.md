@@ -46,8 +46,12 @@ Sistema web full-stack para gestionar eventos, controlar inventario de insumos, 
 2. **Lógica de Negocio**:
    - Proyección automática de consumo: `cantidadAsistentes × cantidadPorPersona`
    - Sistema de alertas cuando `stockActual < consumoProyectado`
-   - Gestión completa de órdenes de compra
-   - Reportes de compras pendientes e histórico
+   - **Gestión automática de órdenes de compra** ✅:
+     - Generación automática desde proyecciones de eventos
+     - Confirmación de recepciones con cantidades editables
+     - Actualización automática de stock al confirmar recepciones
+     - Scheduler automático para procesar órdenes en fecha de necesidad (opcional)
+   - Reportes de compras pendientes e histórico con datos reales
 
 3. **API REST Endpoints**:
    - `/api/eventos` - CRUD de eventos
@@ -56,7 +60,11 @@ Sistema web full-stack para gestionar eventos, controlar inventario de insumos, 
    - `/api/insumos` - CRUD de insumos
    - `/api/insumos/alertas-stock-bajo` - Obtener alertas
    - `/api/ordenes-compra` - CRUD de órdenes
-   - `/api/ordenes-compra/pendientes` - Compras pendientes
+   - `/api/ordenes-compra/pendientes` - Compras pendientes (estado: PENDIENTE)
+   - `/api/ordenes-compra/historico` - Histórico de compras (estados: RECIBIDA, PARCIAL, COMPLETADA) ✅
+   - `/api/ordenes-compra/generar-desde-proyeccion` - Crear orden automática desde evento ✅
+   - `/api/ordenes-compra/{id}/confirmar-recepcion` - Confirmar recepción y actualizar stock ✅
+   - `/api/ordenes-compra/auto-confirmar` - Procesar órdenes pendientes por fecha ✅
 
 ### Frontend React Completo ✅
 1. **Dashboard Principal**:
@@ -89,12 +97,20 @@ Sistema web full-stack para gestionar eventos, controlar inventario de insumos, 
      - Columnas: Nombre Menu, Nombre Insumo, Cant x Persona, Cantidad actual, Cantidad total para el evento, Proveedor, Cantidad pedido
      - Enriquecimiento automático de proveedores desde insumos
      - **Exportar proyección a CSV** con proveedores reales ✅
+     - **Generar Orden de Compra**: Botón para crear automáticamente una orden de compra desde la proyección del evento seleccionado ✅
    - Controles deshabilitados con tooltips para roles sin permisos
    
-5. **Gestión de Órdenes de Compra**:
-   - Listar órdenes con estado (pendiente/aprobada/rechazada)
-   - Crear nuevas órdenes
-   - Eliminar órdenes
+5. **Gestión de Órdenes de Compra (Reportes)** ✅:
+   - **Tab Compras Pendientes**:
+     - Listar órdenes con estado PENDIENTE
+     - Visualización agrupada por orden con detalles de insumos
+     - Tabla editable con columnas: Insumo, Cant. Solicitada, Cant. Recibida (editable), Fecha Necesidad
+     - Botón "Confirmar Recepción" por orden para actualizar stock automáticamente
+   - **Tab Histórico de Compras**:
+     - Listar órdenes completadas (RECIBIDA, PARCIAL, COMPLETADA)
+     - Tabla con columnas: ID Orden, Insumo, Cant. Pedida, Cant. Recibida, Proveedor, Fecha Pedido, Fecha Recepción
+     - Exportar histórico completo a CSV con todos los detalles ✅
+   - Sistema automático de actualización de stock al confirmar recepciones
    
 6. **Navegación**:
    - Barra de navegación con acceso a todas las secciones
@@ -153,7 +169,7 @@ cd frontend && npm run dev
 ## Estado Actual - Sistema Completo ✅
 - ✅ Backend Java completamente funcional con @JsonIgnore en relaciones bidireccionales
 - ✅ Base de datos PostgreSQL configurada con datos de prueba y históricos
-- ✅ API REST completa con 8 controllers
+- ✅ API REST completa con 8 controllers y 5 nuevos endpoints para órdenes de compra
 - ✅ Proxy de Vite configurado para conectar frontend con backend
 - ✅ Dashboard Principal "SAVEUR EVENTOS" unificado para todos los roles
 - ✅ Sistema de permisos visual: botones grises con cursor:not-allowed y tooltips informativos
@@ -161,17 +177,24 @@ cd frontend && npm run dev
 - ✅ 6 vistas principales: DashboardPrincipal, CrearEvento, ModificarEvento, Reservas, ManejarStock, Reportes
 - ✅ Sistema de alertas de stock bajo funcionando
 - ✅ Proyección de consumo automática operativa
+- ✅ **Sistema automático de gestión de compras** ✅:
+  - Generación automática de órdenes desde proyecciones de eventos
+  - Confirmación de recepciones con cantidades editables
+  - Actualización automática de stock al confirmar recepciones
+  - Reportes de compras pendientes y histórico completos
+  - Exportación CSV de histórico de compras
 - ✅ Sistema de autenticación con login y protección de rutas (roles en MAYÚSCULAS)
 - ✅ Componentes antiguos eliminados (DashboardAdministrador, DashboardEncargadaCocina, etc.)
 - ✅ Ambos workflows (frontend/backend) corriendo sin errores de serialización
 - ✅ Control de permisos granular por rol en todas las vistas
 - ✅ Búsqueda de eventos simplificada (integrada en tabla, sin tabs separadas)
-- ✅ Exportación CSV de proyección de consumo
+- ✅ Exportación CSV de proyección de consumo y histórico de compras
 - ✅ Controles visuales (botones grises + tooltips) para acciones no permitidas por rol
 - ✅ Botones "Volver al Dashboard" en ManejarStock y Reportes
 - ✅ Cada menú tiene 8-9 insumos completos (bebidas, aceite, ingredientes principales)
 - ✅ 7 eventos históricos agregados para reportes (julio-octubre 2025)
 - ✅ Filtro de fecha funcional con formato dd/mm/yyyy en visualización
+- ✅ Compatibilidad backward con estados legacy (PROCESANDO, COMPLETADA) marcados como @Deprecated
 
 ## Próximos Pasos (Opcional)
 1. **Implementar Extras**: Agregar checkboxes de extras en CrearEvento y ModificarEvento
@@ -202,3 +225,44 @@ Para prevenir recursión infinita en relaciones bidireccionales JPA:
   - `Evento.eventoExtras` serializa → `EventoExtra.evento` tiene @JsonIgnore
   - `Menu.menuInsumos` serializa → `MenuInsumo.menu` y `MenuInsumo.insumo` tienen @JsonIgnore
   - `OrdenCompra.detalles` serializa → `OrdenCompraDetalle.ordenCompra` tiene @JsonIgnore
+  - `OrdenCompra.evento` tiene @JsonIgnore para evitar recursión en proyecciones
+
+## Sistema de Órdenes de Compra Automáticas ✅
+
+### Flujo Completo Implementado:
+1. **Generación Automática** (ManejarStock → Simular Pedido):
+   - Usuario selecciona evento y visualiza proyección de consumo
+   - Click en "Generar Orden de Compra" crea automáticamente:
+     - OrdenCompra con fechaEmision=hoy, fechaNecesidad=fechaEvento, idEvento
+     - OrdenCompraDetalle por cada insumo con cantidad < stock proyectado
+     - Estado inicial: PENDIENTE
+
+2. **Visualización de Pendientes** (Reportes → Compras Pendientes):
+   - Lista de órdenes agrupadas por proveedor y fecha
+   - Tabla editable para modificar cantidades recibidas
+   - Botón "Confirmar Recepción" por orden
+
+3. **Confirmación de Recepción** (Reportes → Compras Pendientes):
+   - Usuario edita cantidades recibidas (puede ser diferente a solicitada)
+   - Al confirmar: actualiza stock de todos los insumos automáticamente
+   - Cambia estado a RECIBIDA (100% recibido), PARCIAL (<100%) o CANCELADA (0%)
+   - Guarda fechaRecepcion = hoy
+
+4. **Histórico** (Reportes → Histórico de Compras):
+   - Visualización de todas las compras completadas
+   - Comparación entre cantidad pedida vs recibida
+   - Exportación completa a CSV
+
+### Modelo de Datos:
+- **OrdenCompra**:
+  - Campos: idOc, fechaEmision, fechaNecesidad, fechaRecepcion, idEvento, estado, idProveedor
+  - Estados: PENDIENTE, RECIBIDA, PARCIAL, CANCELADA (+ legacy: PROCESANDO, COMPLETADA)
+- **OrdenCompraDetalle**:
+  - Campos: idOcDet, cantidadPedida, cantidadRecibida, estadoLinea, idInsumo, idOc
+  
+### Endpoints REST:
+- `POST /ordenes-compra/generar-desde-proyeccion` - Body: {idEvento: Long}
+- `GET /ordenes-compra/pendientes` - Filtra estado=PENDIENTE
+- `GET /ordenes-compra/historico` - Filtra estado IN (RECIBIDA, PARCIAL, COMPLETADA)
+- `PUT /ordenes-compra/{id}/confirmar-recepcion` - Body: {fechaRecepcion, detalles: [{idDetalle, cantidadRecibida}]}
+- `POST /ordenes-compra/auto-confirmar` - Scheduler automático (implementado pero opcional)

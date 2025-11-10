@@ -215,6 +215,60 @@ const ManejarStock = () => {
     document.body.removeChild(link);
   };
 
+  const handleGenerarOrden = async () => {
+    if (!eventoSeleccionado) {
+      alert('Debe seleccionar un evento primero');
+      return;
+    }
+
+    if (proyeccion.length === 0) {
+      alert('Debe simular el pedido primero');
+      return;
+    }
+
+    const itemsConDeficit = proyeccion.filter(item => item.deficit > 0);
+    
+    if (itemsConDeficit.length === 0) {
+      alert('No hay insumos con déficit para generar una orden de compra');
+      return;
+    }
+
+    try {
+      const items = await Promise.all(itemsConDeficit.map(async (item) => {
+        const insumoRes = await api.get(`/insumos/${item.idInsumo}`);
+        const insumo = insumoRes.data;
+        
+        let idProveedor = null;
+        if (insumo.provInsumos && insumo.provInsumos.length > 0) {
+          idProveedor = insumo.provInsumos[0].proveedor?.idProveedor || null;
+        }
+
+        if (!idProveedor) {
+          throw new Error(`El insumo "${item.nombreInsumo}" no tiene proveedor asignado`);
+        }
+
+        return {
+          idInsumo: item.idInsumo,
+          cantidad: item.deficit,
+          idProveedor: idProveedor
+        };
+      }));
+
+      const request = {
+        idEvento: parseInt(eventoSeleccionado),
+        items: items
+      };
+
+      await api.post('/ordenes-compra/generar-desde-proyeccion', request);
+      alert('Orden de compra generada exitosamente');
+      setProyeccion([]);
+      setEventoSeleccionado('');
+    } catch (error) {
+      console.error('Error generando orden de compra:', error);
+      alert(error.message || 'Error al generar orden de compra');
+    }
+  };
+
   const formatearFecha = (fecha) => {
     if (!fecha) return '';
     const date = new Date(fecha);
@@ -555,6 +609,21 @@ const ManejarStock = () => {
               </table>
 
               <div style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
+                <button
+                  onClick={handleGenerarOrden}
+                  style={{
+                    background: '#27AE60',
+                    color: '#fff',
+                    border: 'none',
+                    padding: '12px 40px',
+                    borderRadius: '5px',
+                    fontSize: '16px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Generar Orden de Compra
+                </button>
+                
                 <button
                   onClick={handleExportarCSV}
                   style={{
