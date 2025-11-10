@@ -133,7 +133,7 @@ const ManejarStock = () => {
     try {
       const eventoId = parseInt(eventoSeleccionado);
       const response = await api.get(`/eventos/${eventoId}/proyeccion-consumo`);
-      const proyeccionData = response.data;
+      const proyeccionData = response.data.proyecciones || [];
       
       // Obtener el evento para tener el nombre del menú
       const eventoRes = await api.get(`/eventos/${eventoId}`);

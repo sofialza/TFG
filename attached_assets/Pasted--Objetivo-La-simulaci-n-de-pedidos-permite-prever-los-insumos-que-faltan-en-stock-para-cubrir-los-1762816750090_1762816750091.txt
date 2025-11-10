@@ -1,0 +1,60 @@
+🎯 Objetivo
+
+La simulación de pedidos permite prever los insumos que faltan en stock para cubrir los próximos eventos, de modo que el sistema pueda generar automáticamente las órdenes de compra necesarias.
+
+El propósito es que el usuario (Administrador o Encargada de Cocina) pueda seleccionar un evento, ver cuántos insumos necesita, cuántos tiene disponibles, y qué cantidad debe pedir —todo de manera clara y automática.
+
+⚙️ Cómo debe funcionar el proceso
+1. Selección del evento
+
+En la pestaña “Simular Pedido”, el usuario elige un evento desde un selector (dropdown).
+
+El listado muestra todos los eventos registrados en el sistema, en formato:
+
+Nombre del Cliente – Fecha del Evento (dd/mm/aaaa)
+
+
+Al seleccionar un evento, el sistema obtiene:
+
+Los menús asociados (principal, secundario y postre).
+
+La cantidad de invitados.
+
+Los insumos que utiliza cada menú (según la tabla menu_insumo).
+
+El stock actual y proveedor de cada insumo.
+
+2. Cálculo automático
+
+Una vez seleccionado el evento, el sistema realiza los cálculos automáticamente:
+
+a) Consumo total estimado
+
+Para cada insumo, se calcula:
+
+Total necesario = Cantidad por persona × Cantidad de invitados
+
+b) Faltante o excedente
+
+Luego se compara el total necesario con el stock actual:
+
+Cantidad a pedir = Total necesario – Stock actual
+
+
+Si el resultado es negativo (hay stock de sobra), se muestra 0 o “Suficiente”.
+
+Si el resultado es positivo, se muestra la cantidad faltante a reponer.
+
+3. Visualización en tabla
+
+El resultado de la simulación se muestra en una tabla con las columnas:
+
+| Menú | Insumo | Cant. x Persona | Stock Actual | Total para el Evento | Proveedor | Cantidad a Pedir |
+
+Ejemplo:
+
+Menú	Insumo	Cant. x Persona	Stock Actual	Total Evento	Proveedor	A Pedir
+Mesa dulce	Harina 000	20 gr	12000 gr	2000 gr	Dulces y Harinas SA	0
+Mesa dulce	Azúcar	15 gr	8000 gr	1500 gr	Dulces y Harinas SA	0
+Menú principal	Jamón	80 gr	6000 gr	8000 gr	Proveedor Central	2000 gr
+Menú principal	Pan lactal	0.5 un	120 un	50 un	Proveedor Central	0

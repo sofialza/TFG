@@ -118,12 +118,14 @@ public class EventoService {
             double faltante = stockInsuficiente ? consumoProyectado - stockActual : 0;
             
             Map<String, Object> proyeccion = new HashMap<>();
-            proyeccion.put("insumo", insumo.getNombre());
+            proyeccion.put("idInsumo", insumo.getIdInsumo());
+            proyeccion.put("nombreInsumo", insumo.getNombre());
+            proyeccion.put("cantidadPorPersona", menuInsumo.getCantidadPorPersona());
             proyeccion.put("stockActual", stockActual);
             proyeccion.put("consumoProyectado", consumoProyectado);
             proyeccion.put("unidadMedida", insumo.getUnidadMedida());
             proyeccion.put("stockSuficiente", !stockInsuficiente);
-            proyeccion.put("faltante", faltante);
+            proyeccion.put("deficit", faltante);
             
             proyecciones.add(proyeccion);
             
