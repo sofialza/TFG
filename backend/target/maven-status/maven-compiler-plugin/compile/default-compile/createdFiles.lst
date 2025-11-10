@@ -1,6 +1,8 @@
+com/eventos/repository/EventoExtraRepository.class
 com/eventos/model/Extra.class
 com/eventos/repository/MenuRepository.class
 com/eventos/EventosApplication.class
+com/eventos/controller/ExtraController.class
 com/eventos/repository/InsumoRepository.class
 com/eventos/model/EventoExtra.class
 com/eventos/controller/InsumoController.class
@@ -13,6 +15,7 @@ com/eventos/config/SecurityConfig.class
 com/eventos/controller/OrdenCompraController.class
 com/eventos/repository/OrdenCompraRepository.class
 com/eventos/model/Menu.class
+com/eventos/dto/EventoCreateDTO.class
 com/eventos/config/CorsConfig$1.class
 com/eventos/repository/MenuInsumoRepository.class
 com/eventos/model/Evento.class
@@ -21,6 +24,7 @@ com/eventos/controller/EventoController.class
 com/eventos/repository/EventoRepository.class
 com/eventos/model/OrdenCompraDetalle$EstadoLinea.class
 com/eventos/model/Insumo.class
+com/eventos/service/ExtraService.class
 com/eventos/repository/ProveedorRepository.class
 com/eventos/service/InsumoService.class
 com/eventos/model/ProvInsumo.class

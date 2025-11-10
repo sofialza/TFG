@@ -1,5 +1,6 @@
 package com.eventos.controller;
 
+import com.eventos.dto.EventoCreateDTO;
 import com.eventos.model.Evento;
 import com.eventos.service.EventoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +20,8 @@ public class EventoController {
     private EventoService eventoService;
     
     @PostMapping
-    public ResponseEntity<Evento> crearEvento(@RequestBody Evento evento) {
-        Evento nuevoEvento = eventoService.crearEvento(evento);
+    public ResponseEntity<Evento> crearEvento(@RequestBody EventoCreateDTO dto) {
+        Evento nuevoEvento = eventoService.crearEvento(dto);
         return new ResponseEntity<>(nuevoEvento, HttpStatus.CREATED);
     }
     
