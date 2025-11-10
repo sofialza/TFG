@@ -16,7 +16,6 @@ public class ProvInsumo {
     
     @ManyToOne
     @JoinColumn(name = "id_proveedor", nullable = false)
-    @JsonIgnore
     private Proveedor proveedor;
     
     @ManyToOne

@@ -32,6 +32,5 @@ public class Insumo {
     private List<MenuInsumo> menuInsumos;
     
     @OneToMany(mappedBy = "insumo", cascade = CascadeType.ALL)
-    @JsonIgnore
     private List<ProvInsumo> provInsumos;
 }
