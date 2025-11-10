@@ -37,6 +37,5 @@ public class Evento {
     private String mailCliente;
     
     @OneToMany(mappedBy = "evento", cascade = CascadeType.ALL)
-    @JsonIgnore
     private List<EventoExtra> eventoExtras;
 }

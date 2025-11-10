@@ -16,10 +16,12 @@ public class ProvInsumo {
     
     @ManyToOne
     @JoinColumn(name = "id_proveedor", nullable = false)
+    @JsonIgnore
     private Proveedor proveedor;
     
     @ManyToOne
     @JoinColumn(name = "id_insumo", nullable = false)
+    @JsonIgnore
     private Insumo insumo;
     
     @Column(name = "precio_unitario", nullable = false)

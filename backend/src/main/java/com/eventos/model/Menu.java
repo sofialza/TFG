@@ -26,6 +26,5 @@ public class Menu {
     private String torta;
     
     @OneToMany(mappedBy = "menu", cascade = CascadeType.ALL)
-    @JsonIgnore
     private List<MenuInsumo> menuInsumos;
 }

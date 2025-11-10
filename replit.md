@@ -150,3 +150,12 @@ cd frontend && npm run dev
 - No hay marcas de Replit en la aplicación (completamente personalizada)
 - Frontend configurado para puerto 5000 (único puerto expuesto para webview)
 - Backend en localhost:8080 (accesible desde frontend)
+
+## Solución de Serialización JSON Implementada
+Para prevenir recursión infinita en relaciones bidireccionales JPA:
+- **Colecciones padres (OneToMany)**: Sin @JsonIgnore para incluir datos en respuestas API
+- **Referencias hijas (ManyToOne)**: Con @JsonIgnore para romper ciclos de recursión
+- Ejemplos:
+  - `Evento.eventoExtras` serializa → `EventoExtra.evento` tiene @JsonIgnore
+  - `Menu.menuInsumos` serializa → `MenuInsumo.menu` y `MenuInsumo.insumo` tienen @JsonIgnore
+  - `OrdenCompra.detalles` serializa → `OrdenCompraDetalle.ordenCompra` tiene @JsonIgnore

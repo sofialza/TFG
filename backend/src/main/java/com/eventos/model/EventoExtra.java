@@ -19,6 +19,7 @@ public class EventoExtra {
     
     @ManyToOne
     @JoinColumn(name = "id_evento", nullable = false)
+    @JsonIgnore
     private Evento evento;
     
     private String descripcion;
