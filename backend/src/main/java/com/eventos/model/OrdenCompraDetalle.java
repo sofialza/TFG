@@ -19,6 +19,7 @@ public class OrdenCompraDetalle {
     
     @ManyToOne
     @JoinColumn(name = "id_oc", nullable = false)
+    @JsonIgnore
     private OrdenCompra ordenCompra;
     
     @Column(name = "cantidad_pedida", nullable = false)

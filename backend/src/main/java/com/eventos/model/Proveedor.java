@@ -22,6 +22,5 @@ public class Proveedor {
     private Double precio;
     
     @OneToMany(mappedBy = "proveedor", cascade = CascadeType.ALL)
-    @JsonIgnore
     private List<ProvInsumo> provInsumos;
 }

@@ -31,7 +31,6 @@ public class OrdenCompra {
     private Double total;
     
     @OneToMany(mappedBy = "ordenCompra", cascade = CascadeType.ALL)
-    @JsonIgnore
     private List<OrdenCompraDetalle> detalles;
     
     public enum Estado {

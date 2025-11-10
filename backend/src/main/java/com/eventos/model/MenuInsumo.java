@@ -2,6 +2,7 @@ package com.eventos.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Data
 @Entity
@@ -14,10 +15,12 @@ public class MenuInsumo {
     
     @ManyToOne
     @JoinColumn(name = "id_menu", nullable = false)
+    @JsonIgnore
     private Menu menu;
     
     @ManyToOne
     @JoinColumn(name = "id_insumo", nullable = false)
+    @JsonIgnore
     private Insumo insumo;
     
     @Column(name = "cantidad_por_persona", nullable = false)

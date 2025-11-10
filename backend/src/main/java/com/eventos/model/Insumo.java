@@ -28,10 +28,8 @@ public class Insumo {
     private LocalDateTime fechaActualizacion = LocalDateTime.now();
     
     @OneToMany(mappedBy = "insumo", cascade = CascadeType.ALL)
-    @JsonIgnore
     private List<MenuInsumo> menuInsumos;
     
     @OneToMany(mappedBy = "insumo", cascade = CascadeType.ALL)
-    @JsonIgnore
     private List<ProvInsumo> provInsumos;
 }
