@@ -125,17 +125,18 @@ const ManejarStock = () => {
   };
 
   const handleSimularPedido = async () => {
-    if (!eventoSeleccionado) {
+    if (!eventoSeleccionado || eventoSeleccionado === '') {
       alert('Seleccione un evento primero');
       return;
     }
 
     try {
-      const response = await api.get(`/eventos/${eventoSeleccionado}/proyeccion-consumo`);
+      const eventoId = parseInt(eventoSeleccionado);
+      const response = await api.get(`/eventos/${eventoId}/proyeccion-consumo`);
       const proyeccionData = response.data;
       
       // Obtener el evento para tener el nombre del menú
-      const eventoRes = await api.get(`/eventos/${eventoSeleccionado}`);
+      const eventoRes = await api.get(`/eventos/${eventoId}`);
       const evento = eventoRes.data;
       const menuRes = await api.get(`/menus/${evento.idMenu}`);
       const nombreMenu = menuRes.data.nombre;

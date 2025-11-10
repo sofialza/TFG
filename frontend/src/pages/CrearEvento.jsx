@@ -208,12 +208,14 @@ const CrearEvento = () => {
                 value={formData.fecha}
                 onChange={handleInputChange}
                 required
+                placeholder="dd/mm/aaaa"
                 style={{
                   flex: 1,
                   padding: '10px',
                   border: '1px solid #ccc',
                   borderRadius: '4px',
-                  fontSize: '14px'
+                  fontSize: '14px',
+                  colorScheme: 'light'
                 }}
               />
             </div>
