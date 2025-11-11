@@ -1,0 +1,91 @@
+Pedido para Dev (Replit)
+UI/UX
+
+Menú → 3 dropdowns (single select):
+
+Entrada: Entrada chica | Entrada grande | Entrada XXL
+
+Principal: Clásico | Veggie | Sin TACC | Infantil (pueden ajustar nombres)
+
+Postre (o “Mesa dulce”, según backend): Opción 1 | Opción 2 | Opción 3
+
+Extras → checkboxes (multi-select): Torta, DJ, Carioca, Souvenirs, Decoración.
+
+Al abrir “Modificar Evento”, los dropdowns deben mostrar una opción seleccionada (si existe) y los extras tildados.
+
+Contrato de API (propuesto)
+
+PUT /api/eventos/{id}
+
+{
+  "titulo": "Cumpleaños Sofía",
+  "email": "sofia@email.com",
+  "tipo": "Cumpleaños",
+  "capacidad": 60,
+  "fecha_evento": "2025-11-19",
+  "observaciones": "Merienda 17:00, Torta 18:30",
+  "menu": {
+    "entrada": "Entrada chica",
+    "principal": "Clásico",
+    "postre": "Opción 2"
+  },
+  "extras": ["Torta", "DJ", "Carioca"]
+}
+
+
+200 OK
+
+{ "ok": true, "id": 123 }
+
+Modelo de datos (sencillo)
+
+evento.menu_entrada (string), evento.menu_principal (string), evento.menu_postre (string)
+
+evento_extras N:M para extras (o campo JSON extras si prefieren).
+
+Frontend (ejemplo rápido)
+// Single-select
+<select value={menu.entrada} onChange={e=>setMenu({...menu, entrada: e.target.value})}>
+  {["Entrada chica","Entrada grande","Entrada XXL"].map(o => <option key={o}>{o}</option>)}
+</select>
+
+<select value={menu.principal} onChange={e=>setMenu({...menu, principal: e.target.value})}>
+  {["Clásico","Veggie","Sin TACC","Infantil"].map(o => <option key={o}>{o}</option>)}
+</select>
+
+<select value={menu.postre} onChange={e=>setMenu({...menu, postre: e.target.value})}>
+  {["Opción 1","Opción 2","Opción 3"].map(o => <option key={o}>{o}</option>)}
+</select>
+
+// Extras (multi)
+{["Torta","DJ","Carioca","Souvenirs","Decoración"].map(x => (
+  <label key={x}>
+    <input
+      type="checkbox"
+      checked={extras.includes(x)}
+      onChange={() =>
+        setExtras(extras.includes(x) ? extras.filter(e => e!==x) : [...extras, x])
+      }
+    /> {x}
+  </label>
+))}
+
+Validaciones
+
+Dropdowns aceptan solo valores de catálogo.
+
+Extras: lista libre de 0..N.
+
+Email válido; capacidad > 0; fecha válida.
+
+Criterios de Aceptación (AC)
+
+Cada dropdown (Entrada, Principal, Postre) permite una sola opción.
+
+Los valores guardados se precargan al reabrir el evento.
+
+Los Extras seleccionados se guardan y reaparecen tildados.
+
+Al guardar, el payload coincide con el contrato y la API responde 200 OK.
+
+Si algún dato obligatorio es inválido, se muestra mensaje y no se envía el PUT.
