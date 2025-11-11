@@ -1,0 +1,85 @@
+Reportes – Solución (MVP)
+1) Compras pendientes
+
+Qué es: la bandeja operativa con los renglones creados automáticamente al Simular pedido (uno por cada insumo con faltante).
+
+Cómo funciona:
+
+Cada simulación de un evento inserta renglones (sin preguntar) con estado Pendiente.
+
+Si se vuelve a simular el mismo evento sin cambios, no duplica (idempotencia simple).
+
+El usuario puede editar “Cant. recibida” y luego Confirmar recepción.
+
+Al confirmar:
+
+Se actualiza el stock del insumo (+ Cant. recibida).
+
+Se registra la Fecha de actualización (ahora).
+
+El renglón pasa al Histórico.
+
+Qué debe mostrar (tabla siempre visible):
+
+Fecha Pedido (dd/mm/aaaa)	Proveedor	Insumo	Unidad	Cant. Pedida	Cant. Recibida (editable)	Estado	Acción
+10/11/2025	Proveedor Central	Jamón	gr	8.000	[ 7.500 ]	Pendiente	Confirmar recepción
+
+Acciones:
+
+Confirmar recepción (actualiza stock y mueve a Histórico).
+
+Exportar CSV (descarga lo visible; no crea/ni modifica órdenes).
+
+Permisos (UI):
+
+Admin / Encargada de cocina: botones activos.
+
+Organizador: solo lectura (botones deshabilitados con tooltip).
+
+2) Histórico de compras
+
+Qué es: el registro final de todo lo ya recibido/confirmado.
+
+Cómo funciona:
+
+Se alimenta solo cuando un renglón de “Compras pendientes” se confirma.
+
+Muestra la comparativa pedida vs recibida y permite exportar.
+
+Qué debe mostrar (tabla siempre visible):
+
+Fecha Recepción (dd/mm/aaaa)	Proveedor	Insumo	Unidad	Cant. Pedida	Cant. Recibida	Actualizado por
+12/11/2025	Proveedor Central	Jamón	gr	8.000	7.500	Encargada Cocina
+
+Acciones:
+
+Exportar CSV/Excel (descarga lo visible con filtros aplicados).
+
+Flujo simplificado (con lo último que definimos)
+Simular pedido (evento seleccionado)
+     └─> crea automáticamente renglones en Compras pendientes
+Compras pendientes:
+     ├─ (opcional) Exportar CSV     ← solo descarga
+     └─ Confirmar recepción         ← actualiza stock y pasa a Histórico
+Histórico:
+     └─ (opcional) Exportar CSV/Excel
+
+Reglas comunes (MVP)
+
+Exportar CSV: descarga exactamente lo que se ve en la tabla (columnas y filtros actuales). No crea ni modifica nada.
+
+Fechas: siempre dd/mm/aaaa en UI; transporte interno puede ser ISO.
+
+Tabla siempre visible: si no hay datos, mostrar “Sin datos”.
+
+Idempotencia básica: re-simular el mismo evento sin cambios no duplica renglones.
+
+Criterios de aceptación (QA)
+
+CA1 – Generación automática: al Simular pedido con faltantes, aparecen renglones en Compras pendientes con estado Pendiente.
+
+CA2 – Exportar independiente: al Exportar CSV, se descarga la tabla visible y no se crean/alteran órdenes.
+
+CA3 – Confirmación: al Confirmar recepción, el stock del insumo aumenta con “Cant. recibida”, se registra fecha y el renglón aparece en Histórico.
+
+CA4 – Roles: Organizador ve reportes en solo lectura; Admin/Cocina pueden editar/confirmar.
