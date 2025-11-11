@@ -43,12 +43,10 @@ public class OrdenCompra {
     
     public enum Estado {
         PENDIENTE,
+        PROCESANDO,
+        COMPLETADA,
         RECIBIDA,
         PARCIAL,
-        CANCELADA,
-        @Deprecated
-        PROCESANDO,
-        @Deprecated
-        COMPLETADA
+        CANCELADA
     }
 }
