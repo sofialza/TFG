@@ -1,0 +1,86 @@
+corre pero no aparece en “Reportes”.
+
+1) Verifica que haya datos “consumibles”
+
+Rango de salida: confirma que la simulación escribe en el rango que el reporte lee.
+
+Prueba rápido: en la hoja de resultados poné =COUNTA(Reporte!A:A) y =COUNTA(Simulación!A:A) para comparar volumen.
+
+Encabezados idénticos: el reporte/pivote suele depender de nombres exactos.
+
+Prueba: =MATCH("Demanda",Simulación!1:1,0) (cambia “Demanda” por tus headers). Si devuelve #N/A, el nombre no coincide.
+
+Tipos de dato: fechas como texto o números con coma/decimal pueden dejar filas “invisibles”.
+
+Argentina usa coma decimal. Asegurate de formateo consistente o normalizá con:
+=VALUE(SUBSTITUTE(A2;",";".")) para números y =DATEVALUE() para fechas.
+
+2) Si tu “Reporte” es una Tabla Dinámica / Pivot
+
+Rango de origen: abrí el editor de la tabla dinámica → “Rango de datos”. ¿Incluye todas las filas nuevas?
+
+Sugerencia: usa rango abierto (ej. Simulación!A:Z) o un rango con nombre que se expanda:
+
+Crea un rango con nombre dinámico con =OFFSET(Simulación!$A$1,0,0,COUNTA(Simulación!$A:$A),N) (ajusta N columnas).
+
+Filtros activos: revisá si hay filtros por fecha/valor que excluyan runs nuevos.
+
+Refresco: a veces no recalcula. Probá Datos → Actualizar o cambia cualquier celda y deshace.
+
+3) Si tu “Reporte” usa QUERY()
+
+Revisá la cláusula WHERE y el uso de comillas/locales:
+
+Texto: WHERE Col1 = 'OK'
+
+Números (coma decimal): convertí primero a número con VALUE(...) o usá una columna auxiliar.
+
+Asegurate de que las columnas referenciadas por letra (Col1, Col2) no cambien de posición si agregás columnas.
+
+4) Cálculo y aleatoriedad en Sheets
+
+Re-cálculo: Archivo → Configuración → “Cálculo” → poné “Al cambiar y cada minuto” si usás RAND()/RANDBETWEEN().
+
+Semilla fija (opcional): para reportes repetibles, generá los aleatorios una vez y pegá valores.
+
+Volatilidad: si el reporte mira una tabla que se reescribe, asegurate de acumular corridas en una tabla “histórica” (append), no sobrescribir.
+
+5) Si el reporte está en Looker Studio (Data Studio)
+
+Rango de fechas del informe: que incluya hoy/últimas corridas.
+
+Filtros de control (chips en el dashboard): limpiá todos los filtros.
+
+Actualización de fuente: “Recargar datos” en el informe. Si es Extract Data Source, toca “Actualizar extracto”.
+
+Campos calculados: si cambiaste nombres/tipos en Sheets, volvé a Reconectar la fuente para que tome el nuevo esquema.
+
+6) Apps Script (si usás script para volcar corridas)
+
+Logs: Ver → Registros. ¿Se insertaron filas? ¿Hay errores de permisos?
+
+Triggers: Editar → Desencadenadores. ¿Está corriendo el trigger? ¿Falla por tiempo?
+
+Append vs overwrite: confirmá que usás appendRow (o getLastRow()+1) en vez de reescribir el mismo rango.
+
+7) Pruebas rápidas para aislar el problema
+
+Conteo en crudo: en Reporte poné =ROWS(FiltroQueUsaElReporte) o replicá la QUERY() en una celda aparte para ver si devuelve filas.
+
+Mini muestra: copiá 10 filas de “Simulación” a una hoja nueva “SimTest” y apuntá el pivot/QUERY a esa hoja. Si aparece, el problema es el rango/filtro; si no, es formato/tipo.
+
+Validador de tipos:
+
+=ARRAYFORMULA(ISTEXT(A2:A)) para ver si algo que debería ser número/fecha está como texto.
+
+=ARRAYFORMULA(ISNUMBER(A2:A)) en columnas numéricas clave.
+
+8) Errores típicos (y soluciones cortas)
+
+“No aparece nada en el pivot” → El rango no incluye filas nuevas ⇒ usa rango abierto o rango con nombre dinámico.
+
+“Solo algunas corridas aparecen” → Filtro de fecha/estado deja fuera nuevas filas ⇒ limpia filtros.
+
+“QUERY no devuelve” → Tipos mezclados (número como texto) ⇒ normalizá con columnas auxiliares VALUE()/DATEVALUE().
+
+“Looker Studio vacío” → Rango de fechas o extracto sin refrescar ⇒ expande fechas y recarga fuente.
