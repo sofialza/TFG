@@ -8,7 +8,7 @@ Sistema web para gestionar eventos, controlar inventario de insumos, calcular pr
 
 ### ✅ Paso 1: Verificar que tienes lo necesario
 
-Si estás en **Replit**, ya tienes todo listo. Si estás en tu computadora, necesitas:
+necesitas:
 - Java 17 o superior instalado
 - Node.js 20 o superior instalado
 - PostgreSQL instalado y corriendo
@@ -77,8 +77,7 @@ En la pantalla de login:
 - Probá ejecutar `npm install` de nuevo
 
 ### No se conecta a la base de datos
-- Si estás en Replit, la base de datos ya está configurada
-- Si estás en tu PC, verificá que PostgreSQL esté corriendo
+- En tu PC, verificá que PostgreSQL esté corriendo
 
 ---
 
