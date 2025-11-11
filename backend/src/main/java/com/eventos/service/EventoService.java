@@ -3,6 +3,8 @@ package com.eventos.service;
 import com.eventos.dto.EventoCreateDTO;
 import com.eventos.model.*;
 import com.eventos.repository.*;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +15,9 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 public class EventoService {
+    
+    @PersistenceContext
+    private EntityManager entityManager;
     
     @Autowired
     private EventoRepository eventoRepository;
@@ -87,6 +92,46 @@ public class EventoService {
                     return eventoRepository.save(evento);
                 })
                 .orElseThrow(() -> new RuntimeException("Evento no encontrado"));
+    }
+    
+    public Evento actualizarEvento(Long id, EventoCreateDTO dto) {
+        Evento evento = eventoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Evento no encontrado"));
+        
+        Menu menu = menuRepository.findById(dto.getMenuId())
+                .orElseThrow(() -> new RuntimeException("Menú no encontrado"));
+        
+        evento.setNombreCliente(dto.getNombreCliente());
+        evento.setMailCliente(dto.getMailCliente());
+        evento.setTipoEvento(dto.getTipoEvento());
+        evento.setCantidadAsistentes(dto.getCantidadAsistentes());
+        evento.setFecha(dto.getFecha());
+        evento.setItinerario(dto.getItinerario());
+        evento.setMenu(menu);
+        
+        eventoExtraRepository.deleteByEventoId(id);
+        entityManager.flush();
+        
+        if (evento.getEventoExtras() != null) {
+            evento.getEventoExtras().clear();
+        }
+        
+        List<EventoExtra> nuevosExtras = new ArrayList<>();
+        if (dto.getExtraIds() != null && !dto.getExtraIds().isEmpty()) {
+            List<Extra> extras = extraRepository.findAllById(dto.getExtraIds());
+            
+            for (Extra extra : extras) {
+                EventoExtra eventoExtra = new EventoExtra();
+                eventoExtra.setEvento(evento);
+                eventoExtra.setExtra(extra);
+                eventoExtra.setDescripcion(extra.getDescripcion());
+                eventoExtraRepository.save(eventoExtra);
+                nuevosExtras.add(eventoExtra);
+            }
+        }
+        evento.setEventoExtras(nuevosExtras);
+        
+        return eventoRepository.save(evento);
     }
     
     public void eliminarEvento(Long id) {

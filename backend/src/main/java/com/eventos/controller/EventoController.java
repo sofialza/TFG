@@ -39,9 +39,9 @@ public class EventoController {
     }
     
     @PutMapping("/{id}")
-    public ResponseEntity<Evento> actualizarEvento(@PathVariable Long id, @RequestBody Evento evento) {
+    public ResponseEntity<Evento> actualizarEvento(@PathVariable Long id, @RequestBody EventoCreateDTO dto) {
         try {
-            Evento eventoActualizado = eventoService.actualizarEvento(id, evento);
+            Evento eventoActualizado = eventoService.actualizarEvento(id, dto);
             return ResponseEntity.ok(eventoActualizado);
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
