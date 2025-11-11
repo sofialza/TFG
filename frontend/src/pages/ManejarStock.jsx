@@ -164,8 +164,7 @@ const ManejarStock = () => {
       // Obtener el evento para tener el nombre del menú
       const eventoRes = await api.get(`/eventos/${eventoId}`);
       const evento = eventoRes.data;
-      const menuRes = await api.get(`/menus/${evento.idMenu}`);
-      const nombreMenu = menuRes.data.nombre;
+      const nombreMenu = evento.menu?.nombre || 'N/A';
       
       // Enriquecer con proveedores para cada insumo
       const proyeccionEnriquecida = await Promise.all(

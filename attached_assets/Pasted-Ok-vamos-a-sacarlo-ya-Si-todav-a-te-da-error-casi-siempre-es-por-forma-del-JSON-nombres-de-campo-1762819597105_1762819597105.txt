@@ -1,0 +1,140 @@
+Ok, vamos a sacarlo ya. Si todavía te da error, casi siempre es por forma del JSON, nombres de campos, o porque el frontend mappea algo undefined. Te dejo un plan de tiro corto con checks y parches defensivos (pegás y probás).
+
+1) Contrato mínimo que debe devolver el backend (canon)
+
+Haz que el endpoint de simulación SIEMPRE devuelva EXACTAMENTE este formato:
+
+{
+  "proyecciones": [
+    {
+      "idInsumo": 7,
+      "nombreInsumo": "Harina 000",
+      "menuNombre": "Mesa dulce",
+      "cantidadPorPersona": 20,
+      "stockActual": 12000,
+      "consumoProyectado": 2000,
+      "deficit": 0,
+      "proveedor": "Dulces SA",
+      "unidad": "gr"
+    }
+  ],
+  "alertas": []
+}
+
+
+Puntos clave:
+
+Raíz con proyecciones (array) y alertas (array).
+
+Nombres exactos: idInsumo, nombreInsumo, cantidadPorPersona, consumoProyectado, deficit.
+
+deficit nunca negativo (si <0 → 0).
+
+2) Verificación express (Network tab)
+
+En el navegador (pantalla Simular pedido):
+
+Abrí DevTools → Network → (llamado a tu endpoint).
+
+Confirmá:
+
+Status 200 (si 4xx/5xx → anota el mensaje del backend).
+
+Response tiene proyecciones (no projection, no items, no data).
+
+Si el JSON no coincide con el “canon” de arriba, el frontend va a romper. Corrígelo primero en el backend.
+
+3) Parche defensivo en el frontend (evita crash por forma)
+
+En ManejarStock.jsx (o donde consumís la simulación), normalizá la respuesta:
+
+const { data } = await api.get(`/api/ordenes-compra/simulacion?eventoId=${eventoId}`);
+// Normaliza forma y valores
+const proyeccionesRaw = Array.isArray(data)
+  ? data
+  : (Array.isArray(data?.proyecciones) ? data.proyecciones : []);
+
+const proyecciones = proyeccionesRaw.map((p) => ({
+  menuNombre: p.menuNombre ?? p.menu ?? "",
+  nombreInsumo: p.nombreInsumo ?? p.insumo ?? "",
+  idInsumo: Number(p.idInsumo ?? p.insumoId ?? 0),
+  cantidadPorPersona: Number(p.cantidadPorPersona ?? p.cantPorPersona ?? 0),
+  stockActual: Number(p.stockActual ?? 0),
+  consumoProyectado: Number(p.consumoProyectado ?? p.totalEvento ?? 0),
+  proveedor: p.proveedor ?? "",
+  unidad: p.unidad ?? "",
+  deficit: Math.max(0, Number(p.deficit ?? p.faltante ?? (p.consumoProyectado - p.stockActual) ?? 0)),
+}));
+// usa 'proyecciones' en tu tabla
+setProyecciones(proyecciones);
+
+
+Esto te blinda ante cambios sutiles de nombre y evita .map sobre undefined.
+
+4) Parche rápido en el backend (forma del JSON)
+
+En tu EventoService.java (o controlador), garantizá la forma y los campos. Esquema orientativo:
+
+@GetMapping("/simulacion")
+public ResponseEntity<Map<String, Object>> simular(@RequestParam Long eventoId) {
+    List<Map<String, Object>> proyecciones = new ArrayList<>();
+
+    // ... obtén evento, menús, insumos, cantidades, stock ...
+    // Por cada insumo:
+    Map<String, Object> row = new HashMap<>();
+    row.put("idInsumo", insumo.getIdInsumo());
+    row.put("nombreInsumo", insumo.getNombre());
+    row.put("menuNombre", menu.getNombre());
+    row.put("cantidadPorPersona", cantPorPersona);               // number
+    row.put("stockActual", stockActual);                          // number
+    row.put("consumoProyectado", cantPorPersona * invitados);     // number
+    long deficit = (cantPorPersona * invitados) - stockActual;
+    row.put("deficit", Math.max(0, deficit));                     // nunca negativo
+    row.put("proveedor", proveedorNombre);
+    row.put("unidad", unidad);                                    // "gr", "un", etc.
+    proyecciones.add(row);
+
+    Map<String, Object> body = new HashMap<>();
+    body.put("proyecciones", proyecciones);
+    body.put("alertas", Collections.emptyList());
+    return ResponseEntity.ok(body);
+}
+
+
+Tips:
+
+Asegurate de usar @RequestParam Long eventoId si el frontend lo manda como query (?eventoId=).
+
+Si lo enviás como path param, actualizá el frontend acorde.
+
+Si cantPorPersona/stockActual son BigDecimal, convértilos a double/long antes de ponerlos en el mapa.
+
+5) Tres causas típicas que siguen dando error
+
+proyecciones es undefined → ya lo blindamos arriba.
+
+El backend devuelve text/html o string → devolvé application/json real (no toString() de objetos).
+
+CORS / 401 → si en Network ves 401/403/ CORS, el problema no es el shape sino autenticación/orígenes.
+
+6) Sanity checks de datos (evitan “tabla vacía”)
+
+El evento del dropdown tiene menús asociados reales (principal/secundario/postre).
+
+Los menús tienen insumos en menu_insumo con cant_por_persona > 0.
+
+Los insumos tienen stockActual (puede ser 0, pero que exista).
+
+Fechas: aunque muestres dd/mm/aaaa en UI, el backend debe leer ISO yyyy-MM-dd.
+
+7) Validación final en UI (rápida)
+
+Seleccioná evento: “24/11/2025 – Empresa Tech SA”.
+
+Click “Simular pedido”.
+
+Debes ver columnas:
+
+Menú | Insumo | Cant x Persona | Stock Actual | Total Evento | Proveedor | A Pedir
+
+Exportar CSV y “Generar Orden de Compra” activos si hay deficit > 0.
