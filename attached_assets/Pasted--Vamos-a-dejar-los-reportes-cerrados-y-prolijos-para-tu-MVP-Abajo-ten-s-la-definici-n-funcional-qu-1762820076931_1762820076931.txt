@@ -1,0 +1,193 @@
+¡Vamos a dejar los reportes cerrados y prolijos para tu MVP! Abajo tenés la definición funcional (qué deben hacer y mostrar), el contrato de datos canónico para que no haya desfaces FE/BE, y los criterios de aceptación. Sin meternos en cómo codificarlo.
+
+📊 Reportes
+1) Compras pendientes
+Objetivo
+
+Bandeja operativa para controlar órdenes abiertas (salidas desde “Simular pedido”) y confirmar recepción comparando lo pedido vs lo recibido.
+
+Qué debe mostrar (tabla visible siempre)
+
+Columnas:
+
+Fecha Pedido (dd/mm/aaaa)
+
+Proveedor
+
+Insumo
+
+Unidad
+
+Cant. Pedida
+
+Cant. Recibida (editable)
+
+Estado (Pendiente)
+
+Acción (🟦 Confirmar Recepción)
+
+Barra superior (opcional, MVP-friendly):
+
+Filtros: Proveedor y Fecha Pedido
+
+Contador: “N pedidos pendientes”
+
+Cómo debe funcionar
+
+La tabla lista cada renglón de orden pendiente (no solo cabeceras), así se puede confirmar por insumo.
+
+El usuario edita Cant. Recibida si no coincide con lo pedido y pulsa Confirmar Recepción:
+
+Se actualiza el stock del insumo con la cantidad recibida.
+
+Se registra Fecha de actualización del stock (ahora).
+
+El renglón (o la orden) pasa a Histórico.
+
+MVP simple: una confirmación cierra el renglón aunque haya diferencia; la diferencia queda registrada (comparativa pedida vs recibida).
+
+Importante: Si no hay datos, mostrar la tabla igualmente con el mensaje “Sin datos”.
+
+Contrato de datos (canon)
+
+GET /api/ordenes-compra/pendientes → JSON
+
+[
+  {
+    "idOrden": 101,
+    "idRenglon": 1011,
+    "fechaPedidoISO": "2025-11-10",
+    "proveedor": "Proveedor Central",
+    "insumo": "Jamón",
+    "unidad": "gr",
+    "cantPedida": 8000,
+    "cantRecibida": null, 
+    "estado": "PENDIENTE"
+  }
+]
+
+
+PUT /api/ordenes-compra/{idRenglon}/confirmar-recepcion
+Body esperado:
+
+{ "cantRecibida": 7500 }
+
+
+Respuesta (éxito, renglón movido a histórico):
+
+{ "ok": true, "movidoAHistorico": true }
+
+
+El frontend muestra dd/mm/aaaa; el backend entrega ISO.
+
+2) Histórico de compras
+Objetivo
+
+Trazabilidad de todo lo ya recibido, con comparativa pedida vs recibida y exportación CSV/Excel.
+
+Qué debe mostrar (tabla visible siempre)
+
+Columnas:
+
+Fecha Recepción (dd/mm/aaaa)
+
+Proveedor
+
+Insumo
+
+Unidad
+
+Cant. Pedida
+
+Cant. Recibida
+
+Actualizado por (opcional para MVP)
+
+Acciones:
+
+📝 Exportar CSV/Excel (descarga lo visible aplicando filtros).
+
+Filtros (opcionales, MVP-friendly):
+
+Rango de fechas y Proveedor.
+
+Cómo debe funcionar
+
+Cada ítem confirmado en “Compras pendientes” aparece aquí.
+
+La comparativa pedida vs recibida es visible para auditoría.
+
+La exportación descarga exactamente las columnas visibles.
+
+Contrato de datos (canon)
+
+GET /api/ordenes-compra/historico?desde=YYYY-MM-DD&hasta=YYYY-MM-DD&proveedor=... → JSON
+
+[
+  {
+    "idOrden": 101,
+    "idRenglon": 1011,
+    "fechaRecepcionISO": "2025-11-12",
+    "proveedor": "Proveedor Central",
+    "insumo": "Jamón",
+    "unidad": "gr",
+    "cantPedida": 8000,
+    "cantRecibida": 7500,
+    "actualizadoPor": "Encargada Cocina"
+  }
+]
+
+Reglas comunes a ambos reportes
+
+Roles y permisos (UI):
+
+Administrador / Encargada de Cocina: ven y editan (botones activos).
+
+Organizador/a: solo lectura (botones deshabilitados con tooltip “Acción no disponible para su perfil de usuario.”).
+
+Fechas: mostrar dd/mm/aaaa en UI; transportar ISO en API.
+
+Tabla siempre visible: incluso sin datos (mostrar “Sin datos”).
+
+Cálculo de stock (MVP): al confirmar recepción, sumar “Cant. Recibida” al stock del insumo y actualizar su fecha de actualización a “ahora”.
+
+Criterios de aceptación (QA)
+
+CA-P1 (listar pendientes):
+Dado que existen órdenes generadas por “Simular pedido”,
+cuando ingreso a Compras pendientes,
+entonces veo una tabla con renglones por insumo (fecha pedido, proveedor, insumo, unidad, cant. pedida, cant. recibida [editable]).
+
+CA-P2 (confirmar recepción):
+Dado un renglón pendiente,
+cuando edito “Cant. Recibida” y pulso Confirmar Recepción,
+entonces el stock del insumo se incrementa con esa cantidad, se registra la fecha, y el renglón se mueve al Histórico.
+
+CA-H1 (ver histórico):
+Dado que confirmé recepciones,
+cuando abro Histórico de compras,
+entonces veo fecha recepción, proveedor, insumo, unidad, cant. pedida y recibida.
+
+CA-H2 (exportación):
+Dado que necesito un informe,
+cuando presiono Exportar CSV/Excel,
+entonces descargo un archivo con exactamente las columnas y filtros aplicados.
+
+CA-Roles:
+Dado que entro con el rol Organizador,
+cuando veo cualquiera de los reportes,
+entonces los botones de acción están deshabilitados y muestran tooltip informativo.
+
+Ejemplos esperados en UI (para probar rápido)
+
+Compras pendientes (ejemplo):
+
+Fecha Pedido	Proveedor	Insumo	Unidad	Cant. Pedida	Cant. Recibida	Estado	Acción
+10/11/2025	Proveedor Central	Jamón	gr	8.000	[ 7.500 ]	Pendiente	Confirmar Recepción
+11/11/2025	Dulces SA	Harina	gr	2.000	[ 2.000 ]	Pendiente	Confirmar Recepción
+
+Histórico (ejemplo):
+
+Fecha Recepción	Proveedor	Insumo	Unidad	Cant. Pedida	Cant. Recibida	Actualizado por
+12/11/2025	Proveedor Central	Jamón	gr	8.000	7.500	Encargada Cocina
+12/11/2025	Dulces SA	Harina	gr	2.000	2.000	Encargada Cocina
