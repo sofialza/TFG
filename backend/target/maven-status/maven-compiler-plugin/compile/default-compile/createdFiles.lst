@@ -16,11 +16,13 @@ com/eventos/config/SecurityConfig.class
 com/eventos/controller/OrdenCompraController.class
 com/eventos/repository/OrdenCompraRepository.class
 com/eventos/model/Menu.class
+com/eventos/service/ProveedorService.class
 com/eventos/dto/EventoCreateDTO.class
 com/eventos/config/CorsConfig$1.class
 com/eventos/repository/MenuInsumoRepository.class
 com/eventos/model/Evento.class
 com/eventos/model/MenuInsumo.class
+com/eventos/controller/ProveedorController.class
 com/eventos/controller/EventoController.class
 com/eventos/repository/EventoRepository.class
 com/eventos/model/OrdenCompraDetalle$EstadoLinea.class
