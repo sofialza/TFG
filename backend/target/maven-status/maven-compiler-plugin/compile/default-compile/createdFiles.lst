@@ -1,5 +1,6 @@
 com/eventos/repository/EventoExtraRepository.class
 com/eventos/model/Extra.class
+com/eventos/repository/ProvInsumoRepository.class
 com/eventos/repository/MenuRepository.class
 com/eventos/EventosApplication.class
 com/eventos/controller/ExtraController.class

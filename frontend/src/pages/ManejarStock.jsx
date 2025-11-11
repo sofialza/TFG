@@ -16,6 +16,7 @@ const ManejarStock = () => {
   const [menuSeleccionado, setMenuSeleccionado] = useState('');
   const [insumosMenu, setInsumosMenu] = useState([]);
   const [insumosEditados, setInsumosEditados] = useState({});
+  const [proveedores, setProveedores] = useState([]);
   
   const [eventos, setEventos] = useState([]);
   const [eventoSeleccionado, setEventoSeleccionado] = useState('');
@@ -35,13 +36,15 @@ const ManejarStock = () => {
 
   const cargarDatos = async () => {
     try {
-      const [menusRes, eventosRes] = await Promise.all([
+      const [menusRes, eventosRes, proveedoresRes] = await Promise.all([
         api.get('/menus'),
-        api.get('/eventos')
+        api.get('/eventos'),
+        api.get('/proveedores')
       ]);
       
       setMenus(menusRes.data);
       setEventos(eventosRes.data);
+      setProveedores(proveedoresRes.data || []);
       
       if (menusRes.data.length > 0) {
         setMenuSeleccionado(menusRes.data[0].idMenu);
@@ -65,12 +68,17 @@ const ManejarStock = () => {
         
         setInsumosMenu(insumosData);
         
-        // Inicializar valores editables
+        // Inicializar valores editables (incluye proveedor)
         const editados = {};
         insumosData.forEach(insumo => {
+          const proveedorId = insumo.provInsumos && insumo.provInsumos.length > 0
+            ? insumo.provInsumos[0].proveedor?.idProveedor || ''
+            : '';
+          
           editados[insumo.idInsumo] = {
             cantidadActual: insumo.cantidadActual,
-            fechaActualizacion: insumo.fechaActualizacion
+            fechaActualizacion: insumo.fechaActualizacion,
+            idProveedor: proveedorId
           };
         });
         setInsumosEditados(editados);
@@ -102,9 +110,23 @@ const ManejarStock = () => {
 
     try {
       const actualizaciones = Object.entries(insumosEditados).map(async ([idInsumo, datos]) => {
-        await api.patch(`/insumos/${idInsumo}/stock`, {
-          cantidad: parseFloat(datos.cantidadActual)
-        });
+        const promises = [];
+        
+        promises.push(
+          api.patch(`/insumos/${idInsumo}/stock`, {
+            cantidad: parseFloat(datos.cantidadActual)
+          })
+        );
+        
+        if (datos.idProveedor && datos.idProveedor !== '') {
+          promises.push(
+            api.patch(`/insumos/${idInsumo}/proveedor`, {
+              proveedorId: parseInt(datos.idProveedor)
+            })
+          );
+        }
+        
+        return Promise.all(promises);
       });
 
       await Promise.all(actualizaciones);
@@ -446,8 +468,27 @@ const ManejarStock = () => {
                             }}
                           />
                         </td>
-                        <td style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'center' }}>
-                          {proveedor}
+                        <td style={{ padding: '12px', border: '1px solid #ddd' }}>
+                          <select
+                            value={insumosEditados[insumo.idInsumo]?.idProveedor || ''}
+                            onChange={(e) => handleCambioInsumo(insumo.idInsumo, 'idProveedor', e.target.value)}
+                            disabled={!puedeActualizarStock()}
+                            style={{
+                              width: '100%',
+                              padding: '8px',
+                              border: '1px solid #ccc',
+                              borderRadius: '4px',
+                              fontSize: '14px',
+                              background: puedeActualizarStock() ? '#fff' : '#f5f5f5'
+                            }}
+                          >
+                            <option value="">Sin asignar</option>
+                            {proveedores.map(prov => (
+                              <option key={prov.idProveedor} value={prov.idProveedor}>
+                                {prov.nombre}
+                              </option>
+                            ))}
+                          </select>
                         </td>
                       </tr>
                     );

@@ -1,6 +1,7 @@
 /home/runner/workspace/backend/src/main/java/com/eventos/repository/UsuarioRepository.java
 /home/runner/workspace/backend/src/main/java/com/eventos/config/SecurityConfig.java
 /home/runner/workspace/backend/src/main/java/com/eventos/repository/EventoExtraRepository.java
+/home/runner/workspace/backend/src/main/java/com/eventos/repository/ProvInsumoRepository.java
 /home/runner/workspace/backend/src/main/java/com/eventos/controller/HealthController.java
 /home/runner/workspace/backend/src/main/java/com/eventos/model/ProvInsumo.java
 /home/runner/workspace/backend/src/main/java/com/eventos/model/EventoExtra.java

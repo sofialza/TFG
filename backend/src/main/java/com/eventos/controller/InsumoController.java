@@ -58,6 +58,20 @@ public class InsumoController {
         }
     }
     
+    @PatchMapping("/{id}/proveedor")
+    public ResponseEntity<Insumo> asignarProveedor(@PathVariable Long id, @RequestBody Map<String, Long> body) {
+        try {
+            Long idProveedor = body.get("proveedorId");
+            if (idProveedor == null) {
+                return ResponseEntity.badRequest().build();
+            }
+            Insumo insumoActualizado = insumoService.asignarProveedorPrincipal(id, idProveedor);
+            return ResponseEntity.ok(insumoActualizado);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+    
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarInsumo(@PathVariable Long id) {
         insumoService.eliminarInsumo(id);
