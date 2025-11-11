@@ -1,7 +1,11 @@
 package com.eventos.service;
 
 import com.eventos.model.Insumo;
+import com.eventos.model.ProvInsumo;
+import com.eventos.model.Proveedor;
 import com.eventos.repository.InsumoRepository;
+import com.eventos.repository.ProvInsumoRepository;
+import com.eventos.repository.ProveedorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +19,12 @@ public class InsumoService {
     
     @Autowired
     private InsumoRepository insumoRepository;
+    
+    @Autowired
+    private ProvInsumoRepository provInsumoRepository;
+    
+    @Autowired
+    private ProveedorRepository proveedorRepository;
     
     public Insumo crearInsumo(Insumo insumo) {
         insumo.setFechaActualizacion(LocalDateTime.now());
@@ -74,5 +84,34 @@ public class InsumoService {
         }
         
         return alertas;
+    }
+    
+    public Insumo asignarProveedorPrincipal(Long idInsumo, Long idProveedor) {
+        Insumo insumo = insumoRepository.findById(idInsumo)
+                .orElseThrow(() -> new RuntimeException("Insumo no encontrado"));
+        
+        Proveedor proveedor = proveedorRepository.findById(idProveedor)
+                .orElseThrow(() -> new RuntimeException("Proveedor no encontrado"));
+        
+        Optional<ProvInsumo> relacionExistente = provInsumoRepository
+                .findByInsumo_IdInsumoAndProveedor_IdProveedor(idInsumo, idProveedor);
+        
+        if (relacionExistente.isEmpty()) {
+            List<ProvInsumo> relacionesAnteriores = provInsumoRepository.findByInsumo_IdInsumo(idInsumo);
+            Double precioPreservado = relacionesAnteriores.isEmpty() ? 0.0 : 
+                    relacionesAnteriores.get(0).getPrecioUnitario();
+            
+            provInsumoRepository.deleteByInsumo_IdInsumo(idInsumo);
+            
+            ProvInsumo nuevaRelacion = new ProvInsumo();
+            nuevaRelacion.setInsumo(insumo);
+            nuevaRelacion.setProveedor(proveedor);
+            nuevaRelacion.setPrecioUnitario(precioPreservado);
+            nuevaRelacion.setFechaActualizacion(LocalDateTime.now());
+            
+            provInsumoRepository.save(nuevaRelacion);
+        }
+        
+        return insumoRepository.findById(idInsumo).orElse(insumo);
     }
 }
