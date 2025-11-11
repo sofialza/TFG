@@ -13,19 +13,12 @@ const ModificarEvento = () => {
     cantidadAsistentes: '',
     fecha: '',
     itinerario: '',
-    menuEntrada: '',
-    menuPrincipal: '',
-    mesaDulce: '',
-    extras: {
-      torta: false,
-      dj: false,
-      decoracion: false,
-      souvenirs: false,
-      carioca: false
-    }
+    menuId: '',
+    extraIds: []
   });
 
   const [menus, setMenus] = useState([]);
+  const [extras, setExtras] = useState([]);
 
   useEffect(() => {
     cargarDatos();
@@ -33,12 +26,15 @@ const ModificarEvento = () => {
 
   const cargarDatos = async () => {
     try {
-      const [eventoRes, menusRes] = await Promise.all([
+      const [eventoRes, menusRes, extrasRes] = await Promise.all([
         api.get(`/eventos/${id}`),
-        api.get('/menus')
+        api.get('/menus'),
+        api.get('/extras')
       ]);
 
       const evento = eventoRes.data;
+      const eventExtraIds = evento.extras?.map(e => e.idExtra) || [];
+
       setFormData({
         nombreCliente: evento.nombreCliente || '',
         mailCliente: evento.mailCliente || '',
@@ -46,40 +42,27 @@ const ModificarEvento = () => {
         cantidadAsistentes: evento.cantidadAsistentes || '',
         fecha: evento.fecha || '',
         itinerario: evento.itinerario || '',
-        menuPrincipal: evento.menu?.idMenu || '',
-        menuEntrada: '',
-        mesaDulce: '',
-        extras: {
-          torta: true,
-          dj: true,
-          decoracion: false,
-          souvenirs: false,
-          carioca: true
-        }
+        menuId: evento.menu?.idMenu || '',
+        extraIds: eventExtraIds
       });
 
       setMenus(menusRes.data);
+      setExtras(extrasRes.data);
     } catch (error) {
       console.error('Error cargando datos:', error);
     }
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+  const handleInputChange = ({ target: { name, value } }) => {
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleExtraChange = (e) => {
-    const { name, checked } = e.target;
+  const toggleExtra = (id) => {
     setFormData(prev => ({
       ...prev,
-      extras: {
-        ...prev.extras,
-        [name]: checked
-      }
+      extraIds: prev.extraIds.includes(id)
+        ? prev.extraIds.filter(extraId => extraId !== id)
+        : [...prev.extraIds, id]
     }));
   };
 
@@ -87,19 +70,14 @@ const ModificarEvento = () => {
     e.preventDefault();
     
     try {
-      const eventoData = {
-        nombreCliente: formData.nombreCliente,
-        mailCliente: formData.mailCliente,
-        tipoEvento: formData.tipoEvento,
-        cantidadAsistentes: parseInt(formData.cantidadAsistentes),
-        fecha: formData.fecha,
-        itinerario: formData.itinerario,
-        menu: {
-          idMenu: formData.menuPrincipal ? parseInt(formData.menuPrincipal) : null
-        }
+      const payload = {
+        ...formData,
+        cantidadAsistentes: Number(formData.cantidadAsistentes) || 0,
+        menuId: formData.menuId ? Number(formData.menuId) : null,
+        extraIds: formData.extraIds.map(Number)
       };
 
-      await api.put(`/eventos/${id}`, eventoData);
+      await api.put(`/eventos/${id}`, payload);
       alert('Evento modificado exitosamente');
       navigate('/reservas');
     } catch (error) {
@@ -124,6 +102,8 @@ const ModificarEvento = () => {
   const handleCancelar = () => {
     navigate('/reservas');
   };
+
+  const menuSeleccionado = menus.find(m => m.idMenu === Number(formData.menuId));
 
   return (
     <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif', maxWidth: '800px', margin: '0 auto' }}>
@@ -259,173 +239,75 @@ const ModificarEvento = () => {
           </div>
 
           <div>
-            <h2 style={{ fontSize: '18px', marginBottom: '20px' }}>Menu</h2>
+            <h2 style={{ fontSize: '18px', marginBottom: '20px' }}>Menú</h2>
             
-            <div style={{ position: 'relative', marginBottom: '15px' }}>
-              <select
-                name="menuEntrada"
-                value={formData.menuEntrada}
-                onChange={handleInputChange}
-                style={{
-                  width: '100%',
+            <div style={{ marginBottom: '15px' }}>
+              <div style={{ position: 'relative', marginBottom: '10px' }}>
+                <select
+                  name="menuId"
+                  value={formData.menuId}
+                  onChange={handleInputChange}
+                  required
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    paddingRight: '40px',
+                    border: '1px solid #ccc',
+                    borderRadius: '4px',
+                    fontSize: '14px',
+                    appearance: 'none',
+                    background: '#fff'
+                  }}
+                >
+                  <option value="">Seleccionar menú</option>
+                  {menus.map(menu => (
+                    <option key={menu.idMenu} value={menu.idMenu}>
+                      {menu.nombre}
+                    </option>
+                  ))}
+                </select>
+                <div style={{
+                  position: 'absolute',
+                  right: '10px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: '#5DADE2',
+                  width: '25px',
+                  height: '25px',
+                  borderRadius: '3px',
+                  pointerEvents: 'none'
+                }}></div>
+              </div>
+
+              {menuSeleccionado && (
+                <div style={{
+                  background: '#f8f8f8',
                   padding: '10px',
-                  paddingRight: '40px',
-                  border: '1px solid #ccc',
                   borderRadius: '4px',
-                  fontSize: '14px',
-                  appearance: 'none',
-                  background: '#fff'
-                }}
-              >
-                <option value="">Entrada</option>
-                {menus.map(menu => (
-                  <option key={menu.idMenu} value={menu.idMenu}>
-                    {menu.primerPlato}
-                  </option>
-                ))}
-              </select>
-              <div style={{
-                position: 'absolute',
-                right: '10px',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                background: '#5DADE2',
-                width: '25px',
-                height: '25px',
-                borderRadius: '3px',
-                pointerEvents: 'none'
-              }}></div>
+                  fontSize: '13px',
+                  color: '#555'
+                }}>
+                  <div><strong>Entrada:</strong> {menuSeleccionado.primerPlato}</div>
+                  <div><strong>Principal:</strong> {menuSeleccionado.segundoPlato}</div>
+                  <div><strong>Postre:</strong> {menuSeleccionado.torta}</div>
+                </div>
+              )}
             </div>
 
-            <div style={{ position: 'relative', marginBottom: '15px' }}>
-              <select
-                name="menuPrincipal"
-                value={formData.menuPrincipal}
-                onChange={handleInputChange}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  paddingRight: '40px',
-                  border: '1px solid #ccc',
-                  borderRadius: '4px',
-                  fontSize: '14px',
-                  appearance: 'none',
-                  background: '#fff'
-                }}
-              >
-                <option value="">Menu Principal</option>
-                {menus.map(menu => (
-                  <option key={menu.idMenu} value={menu.idMenu}>
-                    {menu.nombre}
-                  </option>
-                ))}
-              </select>
-              <div style={{
-                position: 'absolute',
-                right: '10px',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                background: '#5DADE2',
-                width: '25px',
-                height: '25px',
-                borderRadius: '3px',
-                pointerEvents: 'none'
-              }}></div>
-            </div>
-
-            <div style={{ position: 'relative', marginBottom: '30px' }}>
-              <select
-                name="mesaDulce"
-                value={formData.mesaDulce}
-                onChange={handleInputChange}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  paddingRight: '40px',
-                  border: '1px solid #ccc',
-                  borderRadius: '4px',
-                  fontSize: '14px',
-                  appearance: 'none',
-                  background: '#fff'
-                }}
-              >
-                <option value="">Mesa Dulce</option>
-                {menus.map(menu => (
-                  <option key={menu.idMenu} value={menu.idMenu}>
-                    {menu.torta}
-                  </option>
-                ))}
-              </select>
-              <div style={{
-                position: 'absolute',
-                right: '10px',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                background: '#5DADE2',
-                width: '25px',
-                height: '25px',
-                borderRadius: '3px',
-                pointerEvents: 'none'
-              }}></div>
-            </div>
-
-            <h2 style={{ fontSize: '18px', marginBottom: '15px', fontWeight: 'bold' }}>Extras</h2>
+            <h2 style={{ fontSize: '18px', marginBottom: '15px', marginTop: '30px', fontWeight: 'bold' }}>Extras</h2>
             
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px' }}>
-                <input
-                  type="checkbox"
-                  name="torta"
-                  checked={formData.extras.torta}
-                  onChange={handleExtraChange}
-                  style={{ width: '18px', height: '18px' }}
-                />
-                Torta
-              </label>
-
-              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px' }}>
-                <input
-                  type="checkbox"
-                  name="souvenirs"
-                  checked={formData.extras.souvenirs}
-                  onChange={handleExtraChange}
-                  style={{ width: '18px', height: '18px' }}
-                />
-                Souvenirs
-              </label>
-
-              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px' }}>
-                <input
-                  type="checkbox"
-                  name="dj"
-                  checked={formData.extras.dj}
-                  onChange={handleExtraChange}
-                  style={{ width: '18px', height: '18px' }}
-                />
-                DJ
-              </label>
-
-              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px' }}>
-                <input
-                  type="checkbox"
-                  name="carioca"
-                  checked={formData.extras.carioca}
-                  onChange={handleExtraChange}
-                  style={{ width: '18px', height: '18px' }}
-                />
-                Carioca
-              </label>
-
-              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px' }}>
-                <input
-                  type="checkbox"
-                  name="decoracion"
-                  checked={formData.extras.decoracion}
-                  onChange={handleExtraChange}
-                  style={{ width: '18px', height: '18px' }}
-                />
-                Decoracion
-              </label>
+              {extras.map(extra => (
+                <label key={extra.idExtra} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px' }}>
+                  <input
+                    type="checkbox"
+                    checked={formData.extraIds.includes(extra.idExtra)}
+                    onChange={() => toggleExtra(extra.idExtra)}
+                    style={{ width: '18px', height: '18px' }}
+                  />
+                  {extra.nombre}
+                </label>
+              ))}
             </div>
           </div>
         </div>

@@ -54,7 +54,10 @@ const Reservas = () => {
   };
 
   const getExtrasTexto = (evento) => {
-    return '[extra1], [extra 2]...';
+    if (!evento.extras || evento.extras.length === 0) {
+      return 'Sin extras';
+    }
+    return evento.extras.map(extra => extra.nombre).join(', ');
   };
 
   return (
