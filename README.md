@@ -1,8 +1,101 @@
-# 🎉 Sistema de Gestión de Eventos con Control de Insumos
+# 🎉 SAVEUR EVENTOS - Sistema de Gestión de Eventos
 
-Sistema web full-stack para gestionar eventos, controlar inventario de insumos, calcular proyecciones automáticas de consumo y generar alertas de stock bajo.
+Sistema web para gestionar eventos, controlar inventario de insumos, calcular proyecciones automáticas de consumo y generar alertas de stock bajo.
 
-## 📋 Descripción
+---
+
+## ⚡ VERSIÓN SUPER RÁPIDA (SOLO PARA REPLIT)
+
+Si estás viendo esto en **Replit**, es MUY SIMPLE:
+
+1. **Hacé click en el botón RUN** (arriba) → Esto inicia automáticamente el backend y el frontend
+2. **Esperá 15-30 segundos** hasta que veas la pantalla de login en el navegador del lado derecho
+3. **Ingresá con cualquier nombre** y elegí un rol (Administrador, Encargada de Cocina, u Organizador de Eventos)
+4. **¡Listo!** Ya podés usar el sistema
+
+**Nota**: Si algo no se ve bien, probá hacer "Hard Refresh" en el navegador presionando `Ctrl + Shift + R` (Windows/Linux) o `Cmd + Shift + R` (Mac).
+
+---
+
+## 🚀 GUÍA COMPLETA - PASO A PASO (PARA TU COMPUTADORA)
+
+### ✅ Paso 1: Verificar que tienes lo necesario
+
+Si estás en **Replit**, ya tienes todo listo. Si estás en tu computadora, necesitas:
+- Java 17 o superior instalado
+- Node.js 20 o superior instalado
+- PostgreSQL instalado y corriendo
+
+### ✅ Paso 2: Abrir dos terminales
+
+Necesitás **DOS ventanas de terminal** abiertas (una para el backend, otra para el frontend).
+
+### ✅ Paso 3: Iniciar el BACKEND (Servidor Java)
+
+En la **primera terminal**, escribí estos comandos uno por uno:
+
+```bash
+cd backend
+mvn spring-boot:run
+```
+
+Esperá a ver el mensaje: `Started EventosApplication in X.XXX seconds`
+
+Esto significa que el backend está funcionando en `http://localhost:8080`
+
+### ✅ Paso 4: Iniciar el FRONTEND (Interfaz Web)
+
+En la **segunda terminal**, escribí estos comandos uno por uno:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Esperá a ver el mensaje: `Local: http://localhost:5000/`
+
+Esto significa que el frontend está funcionando.
+
+### ✅ Paso 5: Abrir el sistema en tu navegador
+
+1. Abrí tu navegador (Chrome, Firefox, etc.)
+2. Andá a: **http://localhost:5000**
+3. ¡Listo! Vas a ver la pantalla de login del sistema
+
+### ✅ Paso 6: Ingresar al sistema
+
+En la pantalla de login:
+1. **Usuario**: Escribí cualquier nombre (ej: "Juan")
+2. **Rol**: Elegí uno de estos:
+   - **Administrador** → Si querés ver todo el sistema
+   - **Encargada de Cocina** → Si querés gestionar stock e insumos
+   - **Organizador de Eventos** → Si querés crear y gestionar eventos
+3. Hacé click en **Ingresar**
+
+### 🎯 ¡Ya está! Ahora podés usar el sistema
+
+---
+
+## 🛑 ¿Algo no funciona?
+
+### El backend no arranca
+- Verificá que tengas Java 17 o superior: `java -version`
+- Asegurate de estar en la carpeta `backend`
+- Revisá que el puerto 8080 no esté ocupado
+
+### El frontend no arranca
+- Verificá que tengas Node.js: `node -version`
+- Asegurate de estar en la carpeta `frontend`
+- Probá ejecutar `npm install` de nuevo
+
+### No se conecta a la base de datos
+- Si estás en Replit, la base de datos ya está configurada
+- Si estás en tu PC, verificá que PostgreSQL esté corriendo
+
+---
+
+## 📋 Descripción Completa del Sistema
 
 Este sistema permite administrar eventos de forma integral, desde la planificación hasta el control de insumos necesarios. Incluye cálculo automático de consumo proyectado según la cantidad de asistentes y un sistema de alertas que avisa cuando el stock actual es insuficiente para cubrir los eventos programados.
 
