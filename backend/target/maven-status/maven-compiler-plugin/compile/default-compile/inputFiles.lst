@@ -11,6 +11,7 @@
 /home/runner/workspace/backend/src/main/java/com/eventos/controller/EventoController.java
 /home/runner/workspace/backend/src/main/java/com/eventos/model/Usuario.java
 /home/runner/workspace/backend/src/main/java/com/eventos/model/Evento.java
+/home/runner/workspace/backend/src/main/java/com/eventos/service/ProveedorService.java
 /home/runner/workspace/backend/src/main/java/com/eventos/App.java
 /home/runner/workspace/backend/src/main/java/com/eventos/model/Insumo.java
 /home/runner/workspace/backend/src/main/java/com/eventos/controller/InsumoController.java
@@ -33,4 +34,5 @@
 /home/runner/workspace/backend/src/main/java/com/eventos/model/OrdenCompraDetalle.java
 /home/runner/workspace/backend/src/main/java/com/eventos/service/ExtraService.java
 /home/runner/workspace/backend/src/main/java/com/eventos/controller/OrdenCompraController.java
+/home/runner/workspace/backend/src/main/java/com/eventos/controller/ProveedorController.java
 /home/runner/workspace/backend/src/main/java/com/eventos/service/OrdenCompraService.java
