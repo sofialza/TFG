@@ -4,24 +4,11 @@ Sistema web para gestionar eventos, controlar inventario de insumos, calcular pr
 
 ---
 
-## ⚡ VERSIÓN SUPER RÁPIDA (SOLO PARA REPLIT)
-
-Si estás viendo esto en **Replit**, es MUY SIMPLE:
-
-1. **Hacé click en el botón RUN** (arriba) → Esto inicia automáticamente el backend y el frontend
-2. **Esperá 15-30 segundos** hasta que veas la pantalla de login en el navegador del lado derecho
-3. **Ingresá con cualquier nombre** y elegí un rol (Administrador, Encargada de Cocina, u Organizador de Eventos)
-4. **¡Listo!** Ya podés usar el sistema
-
-**Nota**: Si algo no se ve bien, probá hacer "Hard Refresh" en el navegador presionando `Ctrl + Shift + R` (Windows/Linux) o `Cmd + Shift + R` (Mac).
-
----
-
-## 🚀 GUÍA COMPLETA - PASO A PASO (PARA TU COMPUTADORA)
+## 🚀 GUÍA COMPLETA - PASO A PASO 
 
 ### ✅ Paso 1: Verificar que tienes lo necesario
 
-Si estás en **Replit**, ya tienes todo listo. Si estás en tu computadora, necesitas:
+necesitas:
 - Java 17 o superior instalado
 - Node.js 20 o superior instalado
 - PostgreSQL instalado y corriendo
@@ -90,8 +77,7 @@ En la pantalla de login:
 - Probá ejecutar `npm install` de nuevo
 
 ### No se conecta a la base de datos
-- Si estás en Replit, la base de datos ya está configurada
-- Si estás en tu PC, verificá que PostgreSQL esté corriendo
+- En tu PC, verificá que PostgreSQL esté corriendo
 
 ---
 
