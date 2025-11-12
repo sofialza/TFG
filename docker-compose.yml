@@ -1,0 +1,88 @@
+version: '3.8'
+
+services:
+  # Servicio de Base de Datos PostgreSQL
+  database:
+    image: postgres:16-alpine
+    container_name: saveur-database
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-eventos_db}
+      POSTGRES_USER: ${POSTGRES_USER:-eventos_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-eventos_password}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - saveur-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-eventos_user}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Servicio Backend (Spring Boot)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: saveur-backend
+    restart: unless-stopped
+    depends_on:
+      database:
+        condition: service_healthy
+    environment:
+      # Variables de conexión a PostgreSQL
+      PGHOST: database
+      PGPORT: 5432
+      PGDATABASE: ${POSTGRES_DB:-eventos_db}
+      PGUSER: ${POSTGRES_USER:-eventos_user}
+      PGPASSWORD: ${POSTGRES_PASSWORD:-eventos_password}
+      
+      # Configuración de Spring Boot
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-prod}
+      SERVER_PORT: 8080
+      
+      # JWT (opcional para autenticación futura)
+      JWT_SECRET: ${JWT_SECRET:-eventos-secret-key-super-secure-change-in-production}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-86400000}
+    ports:
+      - "8080:8080"
+    networks:
+      - saveur-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/api/eventos"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Servicio Frontend (React + Vite + Nginx)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: saveur-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+    networks:
+      - saveur-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+# Redes
+networks:
+  saveur-network:
+    driver: bridge
+
+# Volúmenes persistentes
+volumes:
+  postgres_data:
+    driver: local
