@@ -1,0 +1,58 @@
+# ========================================
+# Variables de entorno
+# ========================================
+.env
+.env.local
+.env.production
+
+# ========================================
+# Backend (Java/Maven)
+# ========================================
+backend/target/
+backend/.mvn/
+backend/mvnw
+backend/mvnw.cmd
+backend/*.iml
+backend/.classpath
+backend/.project
+backend/.settings/
+
+# ========================================
+# Frontend (Node/React)
+# ========================================
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/coverage/
+frontend/.env.local
+frontend/.env.production
+
+# ========================================
+# Docker
+# ========================================
+docker-compose.override.yml
+
+# ========================================
+# IDEs
+# ========================================
+.idea/
+.vscode/
+*.iml
+*.swp
+*.swo
+*~
+
+# ========================================
+# OS
+# ========================================
+.DS_Store
+Thumbs.db
+*.log
+
+# ========================================
+# Replit
+# ========================================
+.replit
+replit.nix
+.config/
+.cache/
