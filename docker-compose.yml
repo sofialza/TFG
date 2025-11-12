@@ -16,12 +16,21 @@ services:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - saveur-network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-eventos_user}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: saveur-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    volumes:
+      - ./data:/data
+    depends_on:
+      - database
+    networks:
+      - saveur-network
   # Servicio Backend (Spring Boot)
   backend:
     build:
@@ -29,9 +38,6 @@ services:
       dockerfile: Dockerfile
     container_name: saveur-backend
     restart: unless-stopped
-    depends_on:
-      database:
-        condition: service_healthy
     environment:
       # Variables de conexión a PostgreSQL
       PGHOST: database
