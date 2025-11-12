@@ -125,12 +125,28 @@ El proyecto implementa una **arquitectura en 4 capas** siguiendo el patrón MVC:
 
 ## 🚀 Instalación y Ejecución
 
-### Prerrequisitos
+### 🐳 Opción 1: Docker (Recomendado para Producción)
+
+Si tenés Docker instalado, podés levantar todo el sistema con un solo comando:
+
+```bash
+docker-compose up -d
+```
+
+Abrí tu navegador en `http://localhost`
+
+📖 **[Ver guía completa de Docker](README-DOCKER.md)**
+
+---
+
+### 💻 Opción 2: Ejecución Manual (Desarrollo)
+
+#### Prerrequisitos
 - Java 17 o superior
 - Node.js 20 o superior
 - PostgreSQL (ya configurado en Replit)
 
-### Backend (Puerto 8080)
+#### Backend (Puerto 8080)
 
 ```bash
 cd backend
@@ -139,7 +155,7 @@ mvn spring-boot:run
 
 El backend estará disponible en `http://localhost:8080`
 
-### Frontend (Puerto 5000)
+#### Frontend (Puerto 5000)
 
 ```bash
 cd frontend
