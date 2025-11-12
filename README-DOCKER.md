@@ -9,7 +9,7 @@ Esta guía te explica cómo levantar el sistema completo usando Docker en tu com
 Antes de empezar, asegurate de tener instalado:
 
 - **Docker Desktop** (versión 20.10 o superior)
-  - Windows: [Descargar Docker Desktop para Windows](https://www.docker.com/products/docker-desktop)
+  - Windows: [Descargar Docker Desktop para Windows](https://www.docker.com/products/docker-desktop) → 🪟 **[Ver guía Windows](WINDOWS-SETUP.md)**
   - Mac: [Descargar Docker Desktop para Mac](https://www.docker.com/products/docker-desktop)
   - Linux: `sudo apt install docker.io docker-compose` (Ubuntu/Debian)
 
@@ -17,6 +17,13 @@ Antes de empezar, asegurate de tener instalado:
 
 Verificá la instalación:
 ```bash
+# Linux/Mac
+docker --version
+docker-compose --version
+```
+
+```cmd
+REM Windows CMD
 docker --version
 docker-compose --version
 ```
@@ -25,9 +32,18 @@ docker-compose --version
 
 ## 🚀 Inicio Rápido (5 minutos)
 
+> 🪟 **¿Usás Windows?** → [Ver guía específica para Windows](WINDOWS-SETUP.md)
+
 ### 1️⃣ Clonar o descargar el proyecto
 
 ```bash
+# Linux/Mac
+git clone <url-del-repo>
+cd saveur-eventos
+```
+
+```cmd
+REM Windows
 git clone <url-del-repo>
 cd saveur-eventos
 ```
@@ -37,7 +53,13 @@ cd saveur-eventos
 Copia el archivo de ejemplo y editalo si querés cambiar valores:
 
 ```bash
+# Linux/Mac
 cp .env.example .env
+```
+
+```cmd
+REM Windows
+copy .env.example .env
 ```
 
 **Contenido por defecto de `.env`:**
@@ -50,6 +72,22 @@ JWT_SECRET=eventos-secret-key-super-secure
 
 ### 3️⃣ Levantar todos los servicios
 
+```bash
+# Linux/Mac - Automático
+./docker-start.sh
+```
+
+```cmd
+REM Windows CMD - Automático
+docker-start.bat
+```
+
+```powershell
+# Windows PowerShell - Automático
+.\docker-start.bat
+```
+
+**O manualmente:**
 ```bash
 docker-compose up -d
 ```
