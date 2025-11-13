@@ -14,6 +14,7 @@
 /home/runner/workspace/backend/src/main/java/com/eventos/service/ProveedorService.java
 /home/runner/workspace/backend/src/main/java/com/eventos/App.java
 /home/runner/workspace/backend/src/main/java/com/eventos/model/Insumo.java
+/home/runner/workspace/backend/src/main/java/com/eventos/config/DataInitializer.java
 /home/runner/workspace/backend/src/main/java/com/eventos/controller/InsumoController.java
 /home/runner/workspace/backend/src/main/java/com/eventos/model/Extra.java
 /home/runner/workspace/backend/src/main/java/com/eventos/repository/EventoRepository.java
