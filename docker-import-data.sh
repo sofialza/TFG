@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# Script para importar datos desde Replit a Docker
-
 echo "📦 SAVEUR EVENTOS - Importación de Datos"
 echo "========================================="
 echo ""
