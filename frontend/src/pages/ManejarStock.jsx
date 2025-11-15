@@ -77,6 +77,7 @@ const ManejarStock = () => {
           
           editados[insumo.idInsumo] = {
             cantidadActual: insumo.cantidadActual,
+            fechaActualizacion: insumo.fechaActualizacion,
             idProveedor: proveedorId
           };
         });
@@ -415,6 +416,7 @@ const ManejarStock = () => {
                     <th style={{ padding: '12px', border: '1px solid #333' }}>Nombre Insumo</th>
                     <th style={{ padding: '12px', border: '1px solid #333' }}>Cant x Persona</th>
                     <th style={{ padding: '12px', border: '1px solid #333' }}>Stock Actual</th>
+                    <th style={{ padding: '12px', border: '1px solid #333' }}>Fecha Actualización</th>
                     <th style={{ padding: '12px', border: '1px solid #333' }}>Nombre Proveedor</th>
                   </tr>
                 </thead>
@@ -441,6 +443,21 @@ const ManejarStock = () => {
                             step="0.01"
                             value={insumosEditados[insumo.idInsumo]?.cantidadActual || 0}
                             onChange={(e) => handleCambioInsumo(insumo.idInsumo, 'cantidadActual', e.target.value)}
+                            disabled={!puedeActualizarStock()}
+                            style={{
+                              width: '100%',
+                              padding: '8px',
+                              border: '1px solid #ccc',
+                              borderRadius: '4px',
+                              fontSize: '14px'
+                            }}
+                          />
+                        </td>
+                        <td style={{ padding: '12px', border: '1px solid #ddd' }}>
+                          <input
+                            type="date"
+                            value={insumosEditados[insumo.idInsumo]?.fechaActualizacion || ''}
+                            onChange={(e) => handleCambioInsumo(insumo.idInsumo, 'fechaActualizacion', e.target.value)}
                             disabled={!puedeActualizarStock()}
                             style={{
                               width: '100%',
