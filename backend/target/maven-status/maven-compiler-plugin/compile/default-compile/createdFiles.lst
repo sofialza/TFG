@@ -23,7 +23,6 @@ com/eventos/repository/MenuInsumoRepository.class
 com/eventos/model/Evento.class
 com/eventos/model/MenuInsumo.class
 com/eventos/controller/ProveedorController.class
-com/eventos/config/DataInitializer.class
 com/eventos/controller/EventoController.class
 com/eventos/repository/EventoRepository.class
 com/eventos/model/OrdenCompraDetalle$EstadoLinea.class
