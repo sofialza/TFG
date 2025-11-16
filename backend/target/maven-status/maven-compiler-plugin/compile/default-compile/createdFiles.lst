@@ -6,15 +6,15 @@ com/eventos/EventosApplication.class
 com/eventos/controller/ExtraController.class
 com/eventos/repository/InsumoRepository.class
 com/eventos/model/EventoExtra.class
-com/eventos/controller/InsumoController.class
 com/eventos/model/OrdenCompra$Estado.class
 com/eventos/model/OrdenCompra.class
+com/eventos/controller/InsumoController.class
 com/eventos/App.class
 com/eventos/repository/ExtraRepository.class
 com/eventos/repository/UsuarioRepository.class
 com/eventos/config/SecurityConfig.class
-com/eventos/controller/OrdenCompraController.class
 com/eventos/repository/OrdenCompraRepository.class
+com/eventos/controller/OrdenCompraController.class
 com/eventos/model/Menu.class
 com/eventos/service/ProveedorService.class
 com/eventos/dto/EventoCreateDTO.class
@@ -23,9 +23,9 @@ com/eventos/repository/MenuInsumoRepository.class
 com/eventos/model/Evento.class
 com/eventos/model/MenuInsumo.class
 com/eventos/controller/ProveedorController.class
-com/eventos/controller/EventoController.class
 com/eventos/repository/EventoRepository.class
 com/eventos/model/OrdenCompraDetalle$EstadoLinea.class
+com/eventos/controller/EventoController.class
 com/eventos/model/Insumo.class
 com/eventos/service/ExtraService.class
 com/eventos/repository/ProveedorRepository.class
@@ -37,6 +37,7 @@ com/eventos/model/Proveedor.class
 com/eventos/model/Usuario.class
 com/eventos/controller/HealthController.class
 com/eventos/service/OrdenCompraService.class
+com/eventos/config/DataLoader.class
 com/eventos/config/CorsConfig.class
 com/eventos/model/Usuario$Rol.class
 com/eventos/controller/MenuController.class
